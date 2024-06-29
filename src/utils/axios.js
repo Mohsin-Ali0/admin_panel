@@ -40,6 +40,22 @@ export const endpoints = {
     signIn: '/api/admin/auth/signin',
     signUp: '/api/auth/sign-up',
   },
+  roles: {
+    list: '/api/admin/auth/getAllRoles',
+    create: '/api/admin/auth/createRole',
+    status_update: '/api/admin/auth/updateStatus',
+    getbyId: '/api/admin/auth/getRoleById',
+    update: '/api/admin/auth/updateRole',
+    activeRoles: '/api/admin/auth/getActiveRoles',
+  },
+  users: {
+    list: '/api/admin/user/getUsers',
+    create: '/api/admin/user/createUser',
+    status_update: '/api/admin/user/updateUserStatus',
+    getbyId: '/api/admin/user/getUserById',
+    update: '/api/admin/user/updateUser',
+    search: '/api/post/search',
+  },
   mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',

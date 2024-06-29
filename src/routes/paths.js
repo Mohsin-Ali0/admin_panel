@@ -50,5 +50,15 @@ export const paths = {
       five: `${ROOTS.DASHBOARD}/group/five`,
       six: `${ROOTS.DASHBOARD}/group/six`,
     },
+    roles: {
+      root: `${ROOTS.DASHBOARD}/roles`,
+      createRole: `${ROOTS.DASHBOARD}/roles/create-role`,
+      edit: (id) => `${ROOTS.DASHBOARD}/roles/${id}/edit`,
+    },
+    users: {
+      root: `${ROOTS.DASHBOARD}/users`,
+      createUser: `${ROOTS.DASHBOARD}/users/create-user`,
+      edit: (id) => `${ROOTS.DASHBOARD}/users/${id}/edit`,
+    },
   },
 };

@@ -17,6 +17,14 @@ const PageFour = lazy(() => import('src/pages/dashboard/four'));
 const PageFive = lazy(() => import('src/pages/dashboard/five'));
 const PageSix = lazy(() => import('src/pages/dashboard/six'));
 
+const CreateRolePage = lazy(() => import('src/pages/dashboard/roles/create-role'));
+const RolesListPage = lazy(() => import('src/pages/dashboard/roles/roles-list'));
+const RoleEditPage = lazy(() => import('src/pages/dashboard/roles/edit-role'));
+
+const CreateUserPage = lazy(() => import('src/pages/dashboard/users/create-user'));
+const UsersListPage = lazy(() => import('src/pages/dashboard/users/list-user'));
+const UserEditPage = lazy(() => import('src/pages/dashboard/users/edit-user'));
+
 // ----------------------------------------------------------------------
 
 const layoutContent = (
@@ -41,6 +49,24 @@ export const dashboardRoutes = [
           { element: <PageFour />, index: true },
           { path: 'five', element: <PageFive /> },
           { path: 'six', element: <PageSix /> },
+        ],
+      },
+      {
+        path: 'roles',
+        children: [
+          { element: <RolesListPage />, index: true },
+          { path: 'list', element: <RolesListPage /> },
+          { path: 'create-role', element: <CreateRolePage /> },
+          { path: ':id/edit', element: <RoleEditPage /> },
+        ],
+      },
+      {
+        path: 'users',
+        children: [
+          { element: <UsersListPage />, index: true },
+          { path: 'list', element: <UsersListPage /> },
+          { path: 'create-user', element: <CreateUserPage /> },
+          { path: ':id/edit', element: <UserEditPage /> },
         ],
       },
     ],
