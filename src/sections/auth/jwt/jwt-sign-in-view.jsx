@@ -22,6 +22,7 @@ import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks';
 import { signInWithPassword } from 'src/auth/context/jwt';
+import { Toaster, toast } from 'sonner';
 
 // ----------------------------------------------------------------------
 
@@ -66,7 +67,6 @@ export function JwtSignInView() {
     try {
       await signInWithPassword({ email: data.email, password: data.password });
       // await checkUserSession?.();
-
       router.refresh();
     } catch (error) {
       console.error(error);

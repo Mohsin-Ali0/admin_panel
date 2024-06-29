@@ -13,7 +13,6 @@ export default function Page() {
     <>
       <Helmet>
         <title> {metadata.title}</title>
-        {/* <title> MOHSIN </title> */}
       </Helmet>
 
       <BlankView title="Page one" />

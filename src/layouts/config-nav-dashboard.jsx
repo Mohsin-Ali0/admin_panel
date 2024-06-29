@@ -67,6 +67,24 @@ export const navData = [
           { title: 'Six', path: paths.dashboard.group.six },
         ],
       },
+      {
+        title: 'Roles Managment',
+        path: paths.dashboard.roles.root,
+        icon: ICONS.lock,
+        children: [
+          { title: 'All Roles', path: paths.dashboard.roles.root },
+          { title: 'Create Roles', path: paths.dashboard.roles.createRole },
+        ],
+      },
+      {
+        title: 'User Managment',
+        path: paths.dashboard.users.root,
+        icon: ICONS.user,
+        children: [
+          { title: 'All users', path: paths.dashboard.users.root },
+          { title: 'Create users', path: paths.dashboard.users.createUser },
+        ],
+      },
     ],
   },
 ];
