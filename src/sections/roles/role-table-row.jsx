@@ -61,7 +61,7 @@ export function RoleTableRow({ row, selected, onEditRow, onSelectRow, onUpdateSt
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {row?.createdBy?.first_name} {row?.createdBy?.last_name}
+          {row?.updatedBy ? `${row?.updatedBy?.first_name} ${row?.updatedBy?.last_name}` : ''}
         </TableCell>
 
         <TableCell>

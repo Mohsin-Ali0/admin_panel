@@ -26,6 +26,7 @@ import { useMockedUser } from 'src/auth/hooks';
 import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
+import { jwtDecode } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +37,9 @@ export function AccountDrawer({ data = [], sx, ...other }) {
 
   const pathname = usePathname();
 
-  const { user } = useMockedUser();
+  // const { user } = useMockedUser();
+
+  const UserInfo = jwtDecode(sessionStorage.getItem('jwt_access_token'));
 
   const [open, setOpen] = useState(false);
 
@@ -55,12 +58,11 @@ export function AccountDrawer({ data = [], sx, ...other }) {
     },
     [handleCloseDrawer, router]
   );
-
   const renderAvatar = (
     <AnimateAvatar
       width={96}
       slotProps={{
-        avatar: { src: user?.photoURL, alt: user?.displayName },
+        avatar: { src: UserInfo?.photoURL, alt: UserInfo?.displayName },
         overlay: {
           border: 2,
           spacing: 3,
@@ -68,7 +70,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
         },
       }}
     >
-      {user?.displayName?.charAt(0).toUpperCase()}
+      {UserInfo?.displayName?.charAt(0).toUpperCase()}
     </AnimateAvatar>
   );
 
@@ -77,8 +79,8 @@ export function AccountDrawer({ data = [], sx, ...other }) {
       <AccountButton
         open={open}
         onClick={handleOpenDrawer}
-        photoURL={user?.photoURL}
-        displayName={user?.displayName}
+        photoURL={UserInfo?.photoURL}
+        displayName={UserInfo?.displayName}
         sx={sx}
         {...other}
       />
@@ -102,11 +104,11 @@ export function AccountDrawer({ data = [], sx, ...other }) {
             {renderAvatar}
 
             <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              {user?.displayName}
+              {UserInfo?.displayName}
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              {user?.email}
+              {UserInfo?.email}
             </Typography>
           </Stack>
 

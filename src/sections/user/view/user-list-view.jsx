@@ -53,9 +53,9 @@ const ROLE_STATUS_OPTIONS = [
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ROLE_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'role_name', label: 'Role Name' },
-  { id: 'createdBy', label: 'Created by' },
-  { id: 'role_status', label: 'Role Status' },
+  { id: 'username', label: 'User Name' },
+  { id: 'user_status', label: 'User Status' },
+  { id: 'role_name', label: 'Assigned Role' },
   { id: 'updatedBy', label: 'Last Updated by' },
   { id: '', label: 'Actions' },
 ];
@@ -73,13 +73,6 @@ export function UserListView() {
   const router = useRouter();
 
   const confirm = useBoolean();
-
-  const { users, usersLoading, usersError, usersValidating, usersEmpty } = useGetUsers();
-  {
-    usersLoading
-      ? console.log(users, usersLoading, usersError, usersValidating, usersEmpty, 'BEFOREEE')
-      : console.log(users, usersLoading, usersError, usersValidating, usersEmpty, 'AFTEREE');
-  }
 
   const [tableData, setTableData] = useState([]);
   const [TotalCount, setTotalCount] = useState({ all: 0, active: 0, inactive: 0 });
@@ -101,16 +94,16 @@ export function UserListView() {
   const handleUpdateStatus = useCallback(
     async (row) => {
       let Payload = {
-        role_id: row._id,
-        status: row.role_status === true ? false : true,
-        user_id: jwtDecode(sessionStorage.getItem('jwt_access_token')).id,
+        user_id: row._id,
+        status: row.user_status === true ? false : true,
+        updatedBy: jwtDecode(sessionStorage.getItem('jwt_access_token')).id,
       };
       await axios
-        .post(endpoints.roles.status_update, Payload)
+        .post(endpoints.users.status_update, Payload)
         .then((response) => {
           toast.success(response.data.message);
           table.onUpdatePageDeleteRow(dataInPage.length);
-          fetchAllRoles('update');
+          fetchAllUsers('update');
         })
         .catch((error) => {
           toast.error(error.message);
@@ -134,8 +127,7 @@ export function UserListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      console.log(id, 'handleEditRow ID');
-      router.push(paths.dashboard.roles.edit(id));
+      router.push(paths.dashboard.users.edit(id));
     },
     [router]
   );
@@ -150,12 +142,12 @@ export function UserListView() {
   );
 
   useEffect(() => {
-    fetchAllRoles();
+    fetchAllUsers();
   }, [filters, table.page, table.rowsPerPage]);
 
-  async function fetchAllRoles(type) {
+  async function fetchAllUsers(type) {
     try {
-      const response = await axios.get(endpoints.roles.list, {
+      const response = await axios.get(endpoints.users.list, {
         params: {
           page: type == 'update' ? table.page : table.page + 1,
           limit: table.rowsPerPage,
@@ -163,32 +155,40 @@ export function UserListView() {
           status: filters.state.status,
         },
       });
-      console.log(response, 'response');
       setTableData(response.data.data);
       setTotalCount(response.data.totalCounts);
     } catch (error) {
       console.error(error);
     }
   }
-
+  function getCountForCurrentStatus() {
+    switch (filters.state.status) {
+      case true:
+        return TotalCount.active;
+      case false:
+        return TotalCount.inactive;
+      case 'all':
+      default:
+        return TotalCount.all;
+    }
+  }
   return (
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Users"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Roles', href: paths.dashboard.roles.root },
-            { name: 'List' },
+            { name: 'Users', href: paths.dashboard.users.root },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.roles.createRole}
+              href={paths.dashboard.users.createUser}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New Role
+              New User
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
@@ -278,26 +278,16 @@ export function UserListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <UserTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onUpdateStatusRow={() => handleUpdateStatus(row)}
-                        onEditRow={() => handleEditRow(row._id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
+                  {dataFiltered.map((row) => (
+                    <UserTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onUpdateStatusRow={() => handleUpdateStatus(row)}
+                      onEditRow={() => handleEditRow(row._id)}
+                    />
+                  ))}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -308,7 +298,7 @@ export function UserListView() {
           <TablePaginationCustom
             page={table.page}
             dense={table.dense}
-            count={dataFiltered.length}
+            count={getCountForCurrentStatus()}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onChangeDense={table.onChangeDense}
@@ -316,29 +306,6 @@ export function UserListView() {
           />
         </Card>
       </DashboardContent>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
     </>
   );
 }
@@ -358,11 +325,16 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (keyword) {
     inputData = inputData.filter(
-      (role) => role.role_name.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
+      (user) =>
+        user.username.toLowerCase().includes(keyword.toLowerCase()) ||
+        user.user_email.toLowerCase().includes(keyword.toLowerCase()) ||
+        user.first_name.toLowerCase().includes(keyword.toLowerCase()) ||
+        user.last_name.toLowerCase().includes(keyword.toLowerCase())
     );
   }
+
   if (status !== 'all') {
-    inputData = inputData.filter((role) => role.role_status === status);
+    inputData = inputData.filter((user) => user.user_status === status);
   }
 
   return inputData;

@@ -60,5 +60,15 @@ export const paths = {
       createUser: `${ROOTS.DASHBOARD}/users/create-user`,
       edit: (id) => `${ROOTS.DASHBOARD}/users/${id}/edit`,
     },
+    customers: {
+      root: `${ROOTS.DASHBOARD}/customers`,
+      createCustomer: `${ROOTS.DASHBOARD}/customers/create-customer`,
+      edit: (id) => `${ROOTS.DASHBOARD}/customers/${id}/edit`,
+      details: (id) => `${ROOTS.DASHBOARD}/customers/${id}/details`,
+    },
+    customCampaigns: {
+      root: `${ROOTS.DASHBOARD}/custom-campaigns`,
+      createCampaign: `${ROOTS.DASHBOARD}/custom-campaigns/create-campaign`,
+    },
   },
 };

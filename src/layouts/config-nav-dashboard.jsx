@@ -7,7 +7,6 @@ import { SvgColor } from 'src/components/svg-color';
 // ----------------------------------------------------------------------
 
 const icon = (name) => <SvgColor src={`${CONFIG.site.basePath}/assets/icons/navbar/${name}.svg`} />;
-
 const ICONS = {
   job: icon('ic-job'),
   blog: icon('ic-blog'),
@@ -35,6 +34,7 @@ const ICONS = {
   analytics: icon('ic-analytics'),
   dashboard: icon('ic-dashboard'),
   parameter: icon('ic-parameter'),
+  email: icon('ic-email'),
 };
 
 // ----------------------------------------------------------------------
@@ -83,6 +83,23 @@ export const navData = [
         children: [
           { title: 'All users', path: paths.dashboard.users.root },
           { title: 'Create users', path: paths.dashboard.users.createUser },
+        ],
+      },
+      {
+        title: 'Customer Managment',
+        path: paths.dashboard.customers.root,
+        icon: ICONS.user,
+        children: [
+          { title: 'All customers', path: paths.dashboard.customers.root },
+          { title: 'Create customers', path: paths.dashboard.customers.createCustomer },
+        ],
+      },
+      {
+        title: 'Custom Campaigns',
+        path: paths.dashboard.customCampaigns.root,
+        icon: ICONS.user,
+        children: [
+          { title: 'Create Campaigns', path: paths.dashboard.customCampaigns.createCampaign },
         ],
       },
     ],

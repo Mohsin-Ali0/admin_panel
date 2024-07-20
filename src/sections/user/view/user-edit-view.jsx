@@ -8,7 +8,7 @@ import { UserNewEditForm } from '../user-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function UserEditView({ user: currentUser }) {
+export function UserEditView({ currentUser }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -16,7 +16,7 @@ export function UserEditView({ user: currentUser }) {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'User', href: paths.dashboard.users.root },
-          { name: currentUser?.name },
+          { name: currentUser?.username },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
