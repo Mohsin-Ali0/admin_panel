@@ -19,7 +19,6 @@ const metadata = { title: `Role edit | Dashboard - ${CONFIG.site.name}` };
 export default function Page() {
   const { id = '' } = useParams();
 
-  console.log(id, 'PARAM');
   const { role, roleLoading } = useGetRole(id);
 
   return (

@@ -1,29 +1,33 @@
 import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
 import { RoleEditView } from 'src/sections/roles/view/roles-edit';
-import { useGetRole } from 'src/actions/roles';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
+import { useGetUser } from 'src/actions/user';
+import { UserEditView } from 'src/sections/user/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Role Edit | Dashboard - ${CONFIG.site.name}` };
+const metadata = { title: `User Edit | Dashboard - ${CONFIG.site.name}` };
 
 export default function Page() {
   const { id = '' } = useParams();
 
-  console.log(id, 'PARAM');
-  const { role, roleLoading } = useGetRole(id);
+  const { user, userLoading, userError, userValidating } = useGetUser(id);
 
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
-
-      {roleLoading ? <MotionLazy /> : <RoleEditView role={role} />}
+      {userLoading ? (
+        <MotionLazy /> // Or any other loading indicator
+      ) : (
+        <UserEditView currentUser={user} />
+      )}
     </>
   );
 }

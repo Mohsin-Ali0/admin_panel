@@ -86,7 +86,9 @@ export function RoleEditForm({ currentRole }) {
     () => ({
       role_name: currentRole?.role_name || '',
       screens: currentRole?.permissions || initialScreens,
-      createdBy: currentRole?.createdBy.first_name + ' ' + currentRole?.createdBy.last_name || '',
+      createdBy: currentRole?.createdBy?.first_name + ' ' + currentRole?.createdBy?.last_name || '',
+      updatedBy:
+        currentRole?.updatedBy?.first_name + ' ' + currentRole?.updatedBy?.last_name || 'None',
       role_status: currentRole?.role_status || false, // Ensure default value is set
     }),
     [currentRole]
@@ -144,7 +146,6 @@ export function RoleEditForm({ currentRole }) {
         .catch((err) => {
           toast.error(err.message);
         });
-      console.info('DATA', data);
     } catch (error) {
       toast.error('toast');
       console.error(error);
@@ -273,7 +274,7 @@ export function RoleEditForm({ currentRole }) {
 
               <Stack direction="row" alignItems="center" spacing={3}>
                 <Field.Text name="createdBy" label="Created by" disabled />
-                <Field.Text name="createdBy" label="Last Updated by" fullWidth disabled={true} />
+                <Field.Text name="updatedBy" label="Last Updated by" disabled />
               </Stack>
             </Stack>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

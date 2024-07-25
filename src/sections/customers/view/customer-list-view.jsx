@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
-import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -12,10 +12,11 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
+
+import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -38,129 +39,94 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { RoleTableRow } from '../role-table-row';
-import { RoleTableToolbar } from '../role-table-toolbar';
-import { RoleTableFiltersResult } from '../role-table-filters-result';
+import { CustomerTableRow } from '../customer-table-row';
+import { CustomerTableToolbar } from '../customer-table-toolbar';
+import { CustomerTableFiltersResult } from '../customer-table-filters-result';
 import axios, { endpoints } from 'src/utils/axios';
-import { jwtDecode } from 'src/auth/context/jwt';
-// ----------------------------------------------------------------------
-const ROLE_STATUS_OPTIONS = [
-  { value: true, label: 'Active' },
-  { value: false, label: 'InActive' },
-];
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ROLE_STATUS_OPTIONS];
+// ----------------------------------------------------------------------
+
+const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
 
 const TABLE_HEAD = [
-  { id: 'role_name', label: 'Role Name' },
-  { id: 'createdBy', label: 'Created by' },
-  { id: 'role_status', label: 'Role Status' },
-  { id: 'updatedBy', label: 'Last Updated by' },
-  { id: '', label: 'Actions' },
+  { id: 'name', label: 'Customer', width: 140 },
+  { id: 'createdAt', label: 'Date', width: 140 },
+  {
+    id: 'totalQuantity',
+    label: 'Campaigns',
+    width: 120,
+    align: 'center',
+  },
+  { id: 'totalAmount', label: 'Total Amount', width: 140, align: 'center' },
+  { id: 'status', label: 'Status', width: 110, align: 'center' },
 ];
-
-const defaultFilters = {
-  keyword: '',
-  status: 'all',
-};
 
 // ----------------------------------------------------------------------
 
-export function RoleListView() {
-  const table = useTable();
+export function CustomerListView() {
+  const table = useTable({ defaultOrderBy: 'name' });
 
   const router = useRouter();
 
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState([]);
-  const [TotalCount, setTotalCount] = useState({ all: 0, active: 0, inactive: 0 });
+  const [count, setTotalCount] = useState(0);
 
-  const filters = useSetState(defaultFilters);
+  const filters = useSetState({
+    keyword: '',
+    status: 'all',
+    startDate: null,
+    endDate: null,
+  });
+
+  const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters: filters.state,
+    dateError,
   });
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-
-  const canReset = !!filters.state.keyword || filters.state.status !== 'all';
+  const canReset =
+    !!filters.state.keyword || (!!filters.state.startDate && !!filters.state.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleUpdateStatus = useCallback(
-    async (row) => {
-      let Payload = {
-        role_id: row._id,
-        status: row.role_status === true ? false : true,
-        user_id: jwtDecode(sessionStorage.getItem('jwt_access_token')).id,
-      };
-      await axios
-        .post(endpoints.roles.status_update, Payload)
-        .then((response) => {
-          toast.success(response.data.message);
-          table.onUpdatePageDeleteRow(dataInPage.length);
-          fetchAllRoles('update');
-        })
-        .catch((error) => {
-          toast.error(error.message);
-        });
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleEditRow = useCallback(
+  const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.roles.edit(id));
+      router.push(paths.dashboard.customers.details(id));
     },
     [router]
   );
 
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      const updatedValue = newValue === 'true' ? true : newValue === 'false' ? false : newValue;
-      table.onResetPage();
-      filters.setState({ status: updatedValue });
-    },
-    [filters, table]
-  );
-
   useEffect(() => {
-    fetchAllRoles();
-  }, [filters, table.page, table.rowsPerPage]);
+    fetchAllUsers();
+  }, [filters.state, table.page, table.rowsPerPage]);
 
-  async function fetchAllRoles(type) {
+  async function fetchAllUsers(type) {
     try {
-      const response = await axios.get(endpoints.roles.list, {
-        params: {
-          page: type == 'update' ? table.page : table.page + 1,
-          limit: table.rowsPerPage,
-          keyword: filters.state.keyword,
-          status: filters.state.status,
-        },
-      });
+      const { startDate, endDate } = filters.state;
+      const params = {
+        page: type === 'update' ? table.page : table.page + 1,
+        limit: table.rowsPerPage,
+        keyword: filters.state.keyword,
+      };
+
+      // Only include dates if both are valid and startDate is not after endDate
+      if (startDate && endDate && !dateError) {
+        params.startDate = startDate;
+        params.endDate = endDate;
+      }
+
+      const response = await axios.get(endpoints.customer.list, { params });
       setTableData(response.data.data);
       setTotalCount(response.data.totalCounts);
     } catch (error) {
       console.error(error);
     }
   }
-
   return (
     <>
       <DashboardContent>
@@ -168,26 +134,15 @@ export function RoleListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Roles', href: paths.dashboard.roles.root },
+            { name: 'Customers', href: paths.dashboard.customers.root },
             { name: 'List' },
           ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.roles.createRole}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Role
-            </Button>
-          }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
         <Card>
           <Tabs
-            value={String(filters.state.status)}
-            onChange={handleFilterStatus}
+            value={filters.state.status}
             sx={{
               px: 2.5,
               boxShadow: (theme) =>
@@ -196,41 +151,42 @@ export function RoleListView() {
           >
             {STATUS_OPTIONS.map((tab) => (
               <Tab
-                key={String(tab.value)}
+                key={tab.value}
                 iconPosition="end"
-                value={String(tab.value)}
+                value={tab.value}
                 label={tab.label}
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' ||
-                        String(tab.value) === String(filters.state.status)) &&
-                        'filled') ||
+                      ((tab.value === 'all' || tab.value === filters.state.status) && 'filled') ||
                       'soft'
                     }
                     color={
-                      (tab.value === true && 'success') ||
-                      (tab.value === false && 'error') ||
+                      (tab.value === 'completed' && 'success') ||
+                      (tab.value === 'pending' && 'warning') ||
+                      (tab.value === 'cancelled' && 'error') ||
                       'default'
                     }
                   >
-                    {tab.value === 'all'
-                      ? TotalCount.all
-                      : tab.value === true
-                        ? TotalCount.active
-                        : TotalCount.inactive}
+                    {['completed', 'pending', 'cancelled', 'refunded'].includes(tab.value)
+                      ? tableData.filter((user) => user.status === tab.value).length
+                      : tableData.length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <RoleTableToolbar filters={filters} onResetPage={table.onResetPage} />
+          <CustomerTableToolbar
+            filters={filters}
+            onResetPage={table.onResetPage}
+            dateError={dateError}
+          />
 
           {canReset && (
-            <RoleTableFiltersResult
+            <CustomerTableFiltersResult
               filters={filters}
-              totalResults={dataFiltered.length}
+              totalResults={count}
               onResetPage={table.onResetPage}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -256,7 +212,7 @@ export function RoleListView() {
               }
             />
 
-            <Scrollbar>
+            <Scrollbar sx={{ minHeight: 444 }}>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -268,26 +224,21 @@ export function RoleListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <RoleTableRow
-                        key={row._id}
-                        row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onUpdateStatusRow={() => handleUpdateStatus(row)}
-                        onEditRow={() => handleEditRow(row._id)}
-                      />
-                    ))}
+                  {dataFiltered.map((row) => (
+                    <CustomerTableRow
+                      key={row._id}
+                      row={row}
+                      selected={table.selected.includes(row._id)}
+                      onSelectRow={() => table.onSelectRow(row._id)}
+                      onDeleteRow={() => handleDeleteRow(row._id)}
+                      onViewRow={() => handleViewRow(row._id)}
+                    />
+                  ))}
 
-                  <TableEmptyRows
+                  {/* <TableEmptyRows
                     height={table.dense ? 56 : 56 + 20}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
+                  /> */}
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
@@ -298,7 +249,8 @@ export function RoleListView() {
           <TablePaginationCustom
             page={table.page}
             dense={table.dense}
-            count={dataFiltered.length}
+            // count={dataFiltered.length}
+            count={count}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onChangeDense={table.onChangeDense}
@@ -333,8 +285,8 @@ export function RoleListView() {
   );
 }
 
-function applyFilter({ inputData, comparator, filters }) {
-  const { keyword, status } = filters;
+function applyFilter({ inputData, comparator, filters, dateError }) {
+  const { keyword, startDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -348,11 +300,23 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (keyword) {
     inputData = inputData.filter(
-      (role) => role.role_name.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
+      (customer) =>
+        customer?.username?.toLowerCase().indexOf(keyword.toLowerCase()) !== -1 ||
+        customer?.first_name?.toLowerCase().indexOf(keyword.toLowerCase()) !== -1 ||
+        customer?.last_name?.toLowerCase().indexOf(keyword.toLowerCase()) !== -1 ||
+        customer?.email?.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
     );
   }
-  if (status !== 'all') {
-    inputData = inputData.filter((role) => role.role_status === status);
+
+  // if (!dateError) {
+  //   if (startDate && endDate) {
+  //     inputData = inputData.filter((customer) =>
+  //       fIsBetween(customer.createdAt, startDate, endDate)
+  //     );
+  //   }
+  // }
+  if (startDate && endDate && !dateError) {
+    inputData = inputData.filter((customer) => fIsBetween(customer.createdAt, startDate, endDate));
   }
 
   return inputData;

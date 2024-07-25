@@ -16,14 +16,25 @@ const PageThree = lazy(() => import('src/pages/dashboard/three'));
 const PageFour = lazy(() => import('src/pages/dashboard/four'));
 const PageFive = lazy(() => import('src/pages/dashboard/five'));
 const PageSix = lazy(() => import('src/pages/dashboard/six'));
-
+// roles
 const CreateRolePage = lazy(() => import('src/pages/dashboard/roles/create-role'));
 const RolesListPage = lazy(() => import('src/pages/dashboard/roles/roles-list'));
 const RoleEditPage = lazy(() => import('src/pages/dashboard/roles/edit-role'));
-
+// users
 const CreateUserPage = lazy(() => import('src/pages/dashboard/users/create-user'));
 const UsersListPage = lazy(() => import('src/pages/dashboard/users/list-user'));
 const UserEditPage = lazy(() => import('src/pages/dashboard/users/edit-user'));
+
+// customers
+const CreateCustomerPage = lazy(() => import('src/pages/dashboard/customers/create-customer'));
+const CustomersListPage = lazy(() => import('src/pages/dashboard/customers/list-customer'));
+const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customers/details-customer'));
+
+// const CustomerEditPage = lazy(() => import('src/pages/dashboard/customers/edit-customer'));
+//campaigns
+const CreateCampaignPage = lazy(
+  () => import('src/pages/dashboard/custom-campaigns/create-campaign')
+);
 
 // ----------------------------------------------------------------------
 
@@ -67,6 +78,22 @@ export const dashboardRoutes = [
           { path: 'list', element: <UsersListPage /> },
           { path: 'create-user', element: <CreateUserPage /> },
           { path: ':id/edit', element: <UserEditPage /> },
+        ],
+      },
+      {
+        path: 'customers',
+        children: [
+          { element: <CustomersListPage />, index: true },
+          { path: 'list', element: <CustomersListPage /> },
+          { path: 'create-customer', element: <CreateCustomerPage /> },
+          { path: ':id/details', element: <CustomerDetailsPage /> },
+        ],
+      },
+      {
+        path: 'custom-campaigns',
+        children: [
+          { element: <CreateCampaignPage />, index: true },
+          { path: 'create-campaign', element: <CreateCampaignPage /> },
         ],
       },
     ],

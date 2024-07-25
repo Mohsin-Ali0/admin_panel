@@ -56,6 +56,17 @@ export const endpoints = {
     update: '/api/admin/user/updateUser',
     search: '/api/post/search',
   },
+  customer: {
+    list: '/api/admin/customer/getCustomers',
+    create: '/api/admin/customer/createCustomer',
+    status_update: '/api/admin/customer/updateCustomerStatus',
+    getbyId: '/api/admin/customer/getCustomerById',
+    update: '/api/admin/customer/updateCustomer',
+  },
+  customCampaigns: {
+    getchannels: '/channel',
+    getvideos: '/video',
+  },
   mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',

@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
-import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -12,13 +12,15 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import { fIsAfter, fIsBetween } from 'src/utils/format-time';
+
 import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -38,75 +40,74 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { RoleTableRow } from '../role-table-row';
-import { RoleTableToolbar } from '../role-table-toolbar';
-import { RoleTableFiltersResult } from '../role-table-filters-result';
-import axios, { endpoints } from 'src/utils/axios';
-import { jwtDecode } from 'src/auth/context/jwt';
-// ----------------------------------------------------------------------
-const ROLE_STATUS_OPTIONS = [
-  { value: true, label: 'Active' },
-  { value: false, label: 'InActive' },
-];
+import { OrderTableRow } from '../order-table-row';
+import { OrderTableToolbar } from '../order-table-toolbar';
+import { OrderTableFiltersResult } from '../order-table-filters-result';
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ROLE_STATUS_OPTIONS];
+// ----------------------------------------------------------------------
+
+const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'role_name', label: 'Role Name' },
-  { id: 'createdBy', label: 'Created by' },
-  { id: 'role_status', label: 'Role Status' },
-  { id: 'updatedBy', label: 'Last Updated by' },
-  { id: '', label: 'Actions' },
+  { id: 'orderNumber', label: 'Order', width: 88 },
+  { id: 'name', label: 'Customer' },
+  { id: 'createdAt', label: 'Date', width: 140 },
+  {
+    id: 'totalQuantity',
+    label: 'Items',
+    width: 120,
+    align: 'center',
+  },
+  { id: 'totalAmount', label: 'Price', width: 140 },
+  { id: 'status', label: 'Status', width: 110 },
+  { id: '', width: 88 },
 ];
-
-const defaultFilters = {
-  keyword: '',
-  status: 'all',
-};
 
 // ----------------------------------------------------------------------
 
-export function RoleListView() {
-  const table = useTable();
+export function OrderListView() {
+  const table = useTable({ defaultOrderBy: 'orderNumber' });
 
   const router = useRouter();
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState([]);
-  const [TotalCount, setTotalCount] = useState({ all: 0, active: 0, inactive: 0 });
+  const [tableData, setTableData] = useState(_orders);
 
-  const filters = useSetState(defaultFilters);
+  const filters = useSetState({
+    name: '',
+    status: 'all',
+    startDate: null,
+    endDate: null,
+  });
+
+  const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
     filters: filters.state,
+    dateError,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset = !!filters.state.keyword || filters.state.status !== 'all';
+  const canReset =
+    !!filters.state.name ||
+    filters.state.status !== 'all' ||
+    (!!filters.state.startDate && !!filters.state.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleUpdateStatus = useCallback(
-    async (row) => {
-      let Payload = {
-        role_id: row._id,
-        status: row.role_status === true ? false : true,
-        user_id: jwtDecode(sessionStorage.getItem('jwt_access_token')).id,
-      };
-      await axios
-        .post(endpoints.roles.status_update, Payload)
-        .then((response) => {
-          toast.success(response.data.message);
-          table.onUpdatePageDeleteRow(dataInPage.length);
-          fetchAllRoles('update');
-        })
-        .catch((error) => {
-          toast.error(error.message);
-        });
+  const handleDeleteRow = useCallback(
+    (id) => {
+      const deleteRow = tableData.filter((row) => row.id !== id);
+
+      toast.success('Delete success!');
+
+      setTableData(deleteRow);
+
+      table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
@@ -124,42 +125,20 @@ export function RoleListView() {
     });
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const handleEditRow = useCallback(
+  const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.roles.edit(id));
+      router.push(paths.dashboard.order.details(id));
     },
     [router]
   );
 
   const handleFilterStatus = useCallback(
     (event, newValue) => {
-      const updatedValue = newValue === 'true' ? true : newValue === 'false' ? false : newValue;
       table.onResetPage();
-      filters.setState({ status: updatedValue });
+      filters.setState({ status: newValue });
     },
     [filters, table]
   );
-
-  useEffect(() => {
-    fetchAllRoles();
-  }, [filters, table.page, table.rowsPerPage]);
-
-  async function fetchAllRoles(type) {
-    try {
-      const response = await axios.get(endpoints.roles.list, {
-        params: {
-          page: type == 'update' ? table.page : table.page + 1,
-          limit: table.rowsPerPage,
-          keyword: filters.state.keyword,
-          status: filters.state.status,
-        },
-      });
-      setTableData(response.data.data);
-      setTotalCount(response.data.totalCounts);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   return (
     <>
@@ -168,25 +147,15 @@ export function RoleListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Roles', href: paths.dashboard.roles.root },
+            { name: 'Order', href: paths.dashboard.users.root },
             { name: 'List' },
           ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.roles.createRole}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Role
-            </Button>
-          }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
         <Card>
           <Tabs
-            value={String(filters.state.status)}
+            value={filters.state.status}
             onChange={handleFilterStatus}
             sx={{
               px: 2.5,
@@ -196,39 +165,40 @@ export function RoleListView() {
           >
             {STATUS_OPTIONS.map((tab) => (
               <Tab
-                key={String(tab.value)}
+                key={tab.value}
                 iconPosition="end"
-                value={String(tab.value)}
+                value={tab.value}
                 label={tab.label}
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' ||
-                        String(tab.value) === String(filters.state.status)) &&
-                        'filled') ||
+                      ((tab.value === 'all' || tab.value === filters.state.status) && 'filled') ||
                       'soft'
                     }
                     color={
-                      (tab.value === true && 'success') ||
-                      (tab.value === false && 'error') ||
+                      (tab.value === 'completed' && 'success') ||
+                      (tab.value === 'pending' && 'warning') ||
+                      (tab.value === 'cancelled' && 'error') ||
                       'default'
                     }
                   >
-                    {tab.value === 'all'
-                      ? TotalCount.all
-                      : tab.value === true
-                        ? TotalCount.active
-                        : TotalCount.inactive}
+                    {['completed', 'pending', 'cancelled', 'refunded'].includes(tab.value)
+                      ? tableData.filter((user) => user.status === tab.value).length
+                      : tableData.length}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
-          <RoleTableToolbar filters={filters} onResetPage={table.onResetPage} />
+          <OrderTableToolbar
+            filters={filters}
+            onResetPage={table.onResetPage}
+            dateError={dateError}
+          />
 
           {canReset && (
-            <RoleTableFiltersResult
+            <OrderTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
               onResetPage={table.onResetPage}
@@ -256,7 +226,7 @@ export function RoleListView() {
               }
             />
 
-            <Scrollbar>
+            <Scrollbar sx={{ minHeight: 444 }}>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -265,6 +235,12 @@ export function RoleListView() {
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      dataFiltered.map((row) => row.id)
+                    )
+                  }
                 />
 
                 <TableBody>
@@ -274,13 +250,13 @@ export function RoleListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RoleTableRow
-                        key={row._id}
+                      <OrderTableRow
+                        key={row.id}
                         row={row}
-                        selected={table.selected.includes(row._id)}
-                        onSelectRow={() => table.onSelectRow(row._id)}
-                        onUpdateStatusRow={() => handleUpdateStatus(row)}
-                        onEditRow={() => handleEditRow(row._id)}
+                        selected={table.selected.includes(row.id)}
+                        onSelectRow={() => table.onSelectRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        onViewRow={() => handleViewRow(row.id)}
                       />
                     ))}
 
@@ -333,8 +309,8 @@ export function RoleListView() {
   );
 }
 
-function applyFilter({ inputData, comparator, filters }) {
-  const { keyword, status } = filters;
+function applyFilter({ inputData, comparator, filters, dateError }) {
+  const { status, name, startDate, endDate } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -346,13 +322,23 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (keyword) {
+  if (name) {
     inputData = inputData.filter(
-      (role) => role.role_name.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
+      (order) =>
+        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
+        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
+
   if (status !== 'all') {
-    inputData = inputData.filter((role) => role.role_status === status);
+    inputData = inputData.filter((order) => order.status === status);
+  }
+
+  if (!dateError) {
+    if (startDate && endDate) {
+      inputData = inputData.filter((order) => fIsBetween(order.createdAt, startDate, endDate));
+    }
   }
 
   return inputData;

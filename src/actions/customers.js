@@ -1,4 +1,4 @@
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 import { useMemo } from 'react';
 
 import { fetcher, endpoints } from 'src/utils/axios';
@@ -13,19 +13,20 @@ const swrOptions = {
 
 // ----------------------------------------------------------------------
 
-export function useGetUsers() {
-  const url = endpoints.users.list;
+export function useGetcustomers() {
+  const url = endpoints.customer.list;
 
   const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions);
+
   const memoizedValue = useMemo(
     () => ({
-      users: data?.users || [],
-      usersLoading: isLoading,
-      usersError: error,
-      usersValidating: isValidating,
-      usersEmpty: !isLoading && !data?.users.length,
+      customers: data?.customers || [],
+      customersLoading: isLoading,
+      customersError: error,
+      customersValidating: isValidating,
+      customersEmpty: !isLoading && !data?.customers.length,
     }),
-    [data?.users, error, isLoading, isValidating]
+    [data?.customers, error, isLoading, isValidating]
   );
 
   return memoizedValue;
@@ -33,17 +34,18 @@ export function useGetUsers() {
 
 // ----------------------------------------------------------------------
 
-export function useGetUser(userId) {
-  const url = userId ? [endpoints.users.getbyId + `/${userId}`] : '';
+export function useGetcustomer(customerId) {
+  //   const url = customerId ? [endpoints.customers.getbyId, { params: { customerId } }] : '';
+  console.log(customerId, 'customerId');
+  const url = customerId ? [endpoints.customer.getbyId + `/${customerId}`] : '';
 
   const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions);
-
   const memoizedValue = useMemo(
     () => ({
-      user: data?.data,
-      userLoading: isLoading,
-      userError: error,
-      userValidating: isValidating,
+      customer: data?.data,
+      customerLoading: isLoading,
+      customerError: error,
+      customerValidating: isValidating,
     }),
     [data?.data, error, isLoading, isValidating]
   );
@@ -53,8 +55,8 @@ export function useGetUser(userId) {
 
 // ----------------------------------------------------------------------
 
-export function useSearchUser(query) {
-  const url = query ? [endpoints.users.search, { params: { query } }] : '';
+export function useSearchcustomer(query) {
+  const url = query ? [endpoints.customer.search, { params: { query } }] : '';
 
   const { data, isLoading, error, isValidating } = useSWR(url, fetcher, {
     ...swrOptions,
@@ -74,8 +76,3 @@ export function useSearchUser(query) {
 
   return memoizedValue;
 }
-
-export const refreshUser = (userId) => {
-  const url = userId ? [endpoints.users.getbyId + `/${userId}`] : null;
-  mutate(url); // Force a revalidation for the specific key (userId)
-};
