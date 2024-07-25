@@ -36,6 +36,9 @@ export function ChannelItem({ row, isSelected, onClick }) {
           <Typography variant="button" sx={{ color: 'text.primary' }}>
             {row.title}
           </Typography>
+          <Typography variant="caption" sx={{ color: 'text.primary' }}>
+            {row.subscribersCount} Subscribers
+          </Typography>
         </Stack>
       </Card>
     </>

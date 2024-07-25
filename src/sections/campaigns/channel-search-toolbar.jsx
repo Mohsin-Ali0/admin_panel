@@ -9,7 +9,7 @@ import Button from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
 
-export function ChannelSearchToolbar({ url, handleUrlChange, searchChannels }) {
+export function ChannelSearchToolbar({ url, handleUrlChange, handleSearch }) {
   return (
     <Stack
       spacing={2}
@@ -34,7 +34,7 @@ export function ChannelSearchToolbar({ url, handleUrlChange, searchChannels }) {
       <Button
         // component={RouterLink}
         // href={paths.dashboard.users.createUser}
-        onClick={searchChannels}
+        onClick={handleSearch}
         variant="contained"
         endIcon={<Iconify icon="dashicons:search" />}
       >

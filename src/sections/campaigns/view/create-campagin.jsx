@@ -66,7 +66,7 @@ export function CreateCampaignView() {
     },
   });
 
-  const isStepOptional = (step) => step === 1;
+  const isStepOptional = (step) => step === 2;
 
   const isStepSkipped = (step) => skipped.has(step);
 
@@ -143,7 +143,6 @@ export function CreateCampaignView() {
           );
         })}
       </Stepper>
-
       {activeStep === steps.length ? (
         <>
           <Paper
@@ -180,6 +179,7 @@ export function CreateCampaignView() {
             )}
             {activeStep === 1 && (
               <VideoSelection
+                channelId={campagineData.channel.selectedChannel?.channelId}
                 campagineData={campagineData.videos}
                 updateCampaignData={updateCampaignData}
               />
@@ -211,7 +211,7 @@ export function CreateCampaignView() {
             <Button
               variant="contained"
               onClick={handleNext}
-              disabled={!isStepValid(activeStep)} // Disable button if the current step is invalid
+              // disabled={!isStepValid(activeStep)} // Disable button if the current step is invalid
             >
               {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
             </Button>

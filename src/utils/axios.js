@@ -28,6 +28,18 @@ export const fetcher = async (args) => {
   }
 };
 
+export const fetcherPost = async (args) => {
+  try {
+    const [url, body, config] = Array.isArray(args) ? args : [args];
+
+    const res = await axiosInstance.post(url, body, { ...config });
+
+    return res.data;
+  } catch (error) {
+    console.error('Failed to fetch:', error);
+    throw error;
+  }
+};
 // ----------------------------------------------------------------------
 
 export const endpoints = {
@@ -65,7 +77,7 @@ export const endpoints = {
   },
   customCampaigns: {
     getchannels: '/channel',
-    getvideos: '/video',
+    getvideos: '/getchannelvideos',
   },
   mail: {
     list: '/api/mail/list',

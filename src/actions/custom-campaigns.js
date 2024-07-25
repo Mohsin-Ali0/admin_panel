@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useCallback, useMemo, useState } from 'react';
 
-import axios, { fetcher, endpoints } from 'src/utils/axios';
+import axios, { fetcher, endpoints, fetcherPost } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +32,32 @@ export function useGetchannels() {
   return memoizedValue;
 }
 
+export const useManualVideos = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchVideos = useCallback(async (url, body) => {
+    setLoading(true);
+    setError(null);
+    console.log(url, body, 'url, body');
+    try {
+      const response = await axios.post(url, body);
+      if (response.data.status === 200) {
+        return response.data.data.videos; // Assuming VidefetchVideos data is in response.data.data
+      } else {
+        setError(response.data.messege || 'Error fetching Videos');
+        return [];
+      }
+    } catch (err) {
+      setError(err.message || 'Error fetching Videos');
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { fetchVideos, loading, error };
+};
 export const useChannels = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -58,17 +84,46 @@ export const useChannels = () => {
 
   return { fetchChannels, loading, error };
 };
+
+// export const useGetVideos = () => {
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+
+//   const fetchVideos = useCallback(async (url, body) => {
+//     setLoading(true);
+//     setError(null);
+//     console.log(url, body, 'url, body');
+//     try {
+//       const response = await axios.post(url, { url: body });
+//       if (response.data.status === 200) {
+//         return response.data.data; // Assuming videos data is in response.data.data
+//       } else {
+//         setError(response.data.messege || 'Error fetching videos');
+//         return [];
+//       }
+//     } catch (err) {
+//       setError(err.message || 'Error fetching videos');
+//       return [];
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, []);
+
+//   return { fetchVideos, loading, error };
+// };
+
 // ----------------------------------------------------------------------
 
-export function useGetvideos(channelId) {
-  //   const url = channelId ? [endpoints.videoss.getbyId, { params: { channelId } }] : '';
-  console.log(channelId, 'channelId');
-  const url = channelId ? [endpoints.videos.getbyId + `/${channelId}`] : '';
+export function useGetvideos(channelId, SelectedType, SearchBody) {
+  console.log(SearchBody, 'SearchBody');
+  const url = channelId
+    ? [endpoints.customCampaigns.getvideos, { channelId, type: SelectedType, SearchBody }]
+    : '';
 
-  const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions);
+  const { data, isLoading, error, isValidating } = useSWR(url, fetcherPost, swrOptions);
   const memoizedValue = useMemo(
     () => ({
-      videos: data?.data,
+      videos: data?.data.videos || [],
       videosLoading: isLoading,
       videosError: error,
       videosValidating: isValidating,
