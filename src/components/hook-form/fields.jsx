@@ -12,6 +12,7 @@ import { RHFSelect, RHFMultiSelect } from './rhf-select';
 import { RHFCheckbox, RHFMultiCheckbox } from './rhf-checkbox';
 import { RHFUpload, RHFUploadBox, RHFUploadAvatar } from './rhf-upload';
 import { RHFDatePicker, RHFMobileDateTimePicker } from './rhf-date-picker';
+import { RHFNumberField } from './rhf-number-input';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +25,7 @@ export const Field = {
   Slider: RHFSlider,
   Rating: RHFRating,
   Text: RHFTextField,
+  Number:RHFNumberField,
   Phone: RHFPhoneInput,
   Checkbox: RHFCheckbox,
   UploadBox: RHFUploadBox,

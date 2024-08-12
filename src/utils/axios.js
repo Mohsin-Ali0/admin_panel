@@ -78,6 +78,7 @@ export const endpoints = {
   customCampaigns: {
     getchannels: '/channel',
     getvideos: '/getchannelvideos',
+    createCampaign: 'api/admin/campaign/createCustomCampaign',
   },
   mail: {
     list: '/api/mail/list',

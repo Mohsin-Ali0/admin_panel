@@ -1,44 +1,47 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { m } from 'framer-motion';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Radio from '@mui/material/Radio';
+import Container from '@mui/material/Container';
 import RadioGroup from '@mui/material/RadioGroup';
+import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
+
+import { useGetvideos } from 'src/actions/custom-campaigns';
+import { PageNotFoundIllustration } from 'src/assets/illustrations';
+
+import { LoadingScreen } from 'src/components/loading-screen';
+import { varBounce, MotionContainer } from 'src/components/animate';
 
 import { AutoSelectedVideos } from './auto-select-videos';
 import { ManuallySelectVideos } from './manual-select-videos';
-import { useGetvideos } from 'src/actions/custom-campaigns';
-import { LoadingScreen } from 'src/components/loading-screen';
-import { m } from 'framer-motion';
-
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-
-import { PageNotFoundIllustration } from 'src/assets/illustrations';
-
-import { varBounce, MotionContainer } from 'src/components/animate';
 
 export function VideoSelection({ channelId, campagineData, updateCampaignData }) {
-  const [selectedValue, setSelectedValue] = useState(1);
+  console.log(campagineData, 'campagineData?.selectedType');
   const { videos, videosLoading, videosError, videosValidating } = useGetvideos(
     channelId,
-    selectedValue,
+    campagineData?.selectedType,
     campagineData.url
   );
 
   useEffect(() => {
     if (videos) {
-      if (selectedValue === 1 || selectedValue === 2) {
+      if (campagineData?.selectedType === 1 || campagineData?.selectedType === 2) {
         // Only update if there's a change in the data
-        updateCampaignData('videos', { selectedVideos: videos });
-      } else if (selectedValue === 3) {
-        updateCampaignData('videos', { selectedVideos: [], VideosList: videos });
+        updateCampaignData('videos', { selectedVideos: videos, ManualSelected: false });
+      } else if (campagineData?.selectedType === 3) {
+        updateCampaignData('videos', {
+          selectedVideos: [],
+          VideosList: videos,
+          ManualSelected: true,
+        });
       }
     }
   }, [videos]);
 
   const handleChange = useCallback((event) => {
-    setSelectedValue(parseInt(event.target.value));
+    updateCampaignData('videos', { selectedType: parseInt(event.target.value) });
   }, []);
 
   const renderLoading = (
@@ -48,7 +51,7 @@ export function VideoSelection({ channelId, campagineData, updateCampaignData })
   );
 
   const renderError = (
-    <Box sx={{ p: 5 }} textAlign={'center'}>
+    <Box sx={{ p: 5 }} textAlign="center">
       <Container component={MotionContainer}>
         <m.div variants={varBounce().in}>
           <Typography variant="h3" sx={{ mb: 2 }}>
@@ -64,7 +67,8 @@ export function VideoSelection({ channelId, campagineData, updateCampaignData })
   );
 
   const renderChildComponent = useMemo(() => {
-    switch (selectedValue) {
+    console.log(campagineData?.selectedType, 'MEMOOOOOO');
+    switch (campagineData?.selectedType) {
       case 1:
         return <AutoSelectedVideos selectedVideos={campagineData.selectedVideos} />;
       case 2:
@@ -80,11 +84,11 @@ export function VideoSelection({ channelId, campagineData, updateCampaignData })
       default:
         return null;
     }
-  }, [selectedValue, campagineData, updateCampaignData]);
+  }, [campagineData, updateCampaignData]);
 
   return (
     <>
-      <RadioGroup defaultValue={1} value={selectedValue} onChange={handleChange}>
+      <RadioGroup defaultValue={1} value={campagineData?.selectedType} onChange={handleChange}>
         <FormControlLabel
           value={1}
           control={<Radio size="medium" />}

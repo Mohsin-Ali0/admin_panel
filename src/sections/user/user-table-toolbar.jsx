@@ -33,8 +33,7 @@ export function UserTableToolbar({ filters, onResetPage }) {
   );
 
   return (
-    <>
-      <Stack
+    <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{ xs: 'column', md: 'row' }}
@@ -44,7 +43,7 @@ export function UserTableToolbar({ filters, onResetPage }) {
           <InputLabel>Status</InputLabel>
           <Select value={filters.state.status} onChange={handleFilterStatus} label="Status">
             <MenuItem value="all">All</MenuItem>
-            <MenuItem value={true}>Active</MenuItem>
+            <MenuItem value>Active</MenuItem>
             <MenuItem value={false}>InActive</MenuItem>
           </Select>
         </FormControl>
@@ -66,6 +65,5 @@ export function UserTableToolbar({ filters, onResetPage }) {
           />
         </Stack>
       </Stack>
-    </>
   );
 }

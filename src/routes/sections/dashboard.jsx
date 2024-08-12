@@ -31,7 +31,7 @@ const CustomersListPage = lazy(() => import('src/pages/dashboard/customers/list-
 const CustomerDetailsPage = lazy(() => import('src/pages/dashboard/customers/details-customer'));
 
 // const CustomerEditPage = lazy(() => import('src/pages/dashboard/customers/edit-customer'));
-//campaigns
+// campaigns
 const CreateCampaignPage = lazy(
   () => import('src/pages/dashboard/custom-campaigns/create-campaign')
 );

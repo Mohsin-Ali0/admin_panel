@@ -1,22 +1,27 @@
 import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
+import { Divider, Checkbox } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { useRouter } from 'src/routes/hooks';
-import { Form, Field, RHFSwitch } from 'src/components/hook-form';
-import { Checkbox, Divider, Switch } from '@mui/material';
-import { toast } from 'src/components/snackbar';
+
 import { paths } from 'src/routes/paths';
-import { jwtDecode } from 'src/auth/context/jwt';
-import axios, { endpoints } from '../../utils/axios';
+import { useRouter } from 'src/routes/hooks';
+
 import { Label } from 'src/components/label';
+import { toast } from 'src/components/snackbar';
+import { Form, Field } from 'src/components/hook-form';
+
+import { jwtDecode } from 'src/auth/context/jwt';
+
+import axios, { endpoints } from '../../utils/axios';
 
 // Define the schema with the screens array
 const RoleSchema = zod.object({
@@ -86,9 +91,9 @@ export function RoleEditForm({ currentRole }) {
     () => ({
       role_name: currentRole?.role_name || '',
       screens: currentRole?.permissions || initialScreens,
-      createdBy: currentRole?.createdBy?.first_name + ' ' + currentRole?.createdBy?.last_name || '',
+      createdBy: `${currentRole?.createdBy?.first_name  } ${  currentRole?.createdBy?.last_name}` || '',
       updatedBy:
-        currentRole?.updatedBy?.first_name + ' ' + currentRole?.updatedBy?.last_name || 'None',
+        `${currentRole?.updatedBy?.first_name  } ${  currentRole?.updatedBy?.last_name}` || 'None',
       role_status: currentRole?.role_status || false, // Ensure default value is set
     }),
     [currentRole]
@@ -117,7 +122,7 @@ export function RoleEditForm({ currentRole }) {
 
   useEffect(() => {
     if (currentRole && currentRole.permissions) {
-      const permissions = currentRole.permissions;
+      const {permissions} = currentRole;
       const transformedScreens = Object.keys(permissions).map((key) => ({
         name: key.charAt(0).toUpperCase() + key.slice(1),
         view: permissions[key].view,
@@ -160,9 +165,9 @@ export function RoleEditForm({ currentRole }) {
             <Box
               display="flex"
               sx={{ pb: 2 }}
-              alignItems={'flex-end'}
-              justifyContent={'flex-end'}
-              flexDirection={'row'}
+              alignItems="flex-end"
+              justifyContent="flex-end"
+              flexDirection="row"
             >
               {currentRole && (
                 <Label
@@ -188,8 +193,8 @@ export function RoleEditForm({ currentRole }) {
                 rowGap={3}
                 columnGap={2}
                 display="flex"
-                alignItems={'center'}
-                justifyContent={'start'}
+                alignItems="center"
+                justifyContent="start"
               >
                 <Field.Switch
                   name="role_status"

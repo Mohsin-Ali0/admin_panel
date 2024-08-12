@@ -8,7 +8,6 @@ import MenuList from '@mui/material/MenuList';
 import Collapse from '@mui/material/Collapse';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
@@ -18,7 +17,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { usePopover, CustomPopover } from 'src/components/custom-popover';
@@ -108,7 +106,7 @@ export function CustomerTableRow({ row, selected, onViewRow, onSelectRow, onDele
           </IconButton>
         </TableCell>
       ) : (
-        <TableCell align="center" sx={{ px: 1, whiteSpace: 'nowrap' }}></TableCell>
+        <TableCell align="center" sx={{ px: 1, whiteSpace: 'nowrap' }} />
       )}
     </TableRow>
   );
@@ -148,7 +146,7 @@ export function CustomerTableRow({ row, selected, onViewRow, onSelectRow, onDele
                     </Link>
                   }
                   secondary={
-                    item?.parsedCampaignDetails?.ChannelDetails?.subscribersCount + ' Subscribers'
+                    `${item?.parsedCampaignDetails?.ChannelDetails?.subscribersCount  } Subscribers`
                   }
                   primaryTypographyProps={{ typography: 'body2' }}
                   secondaryTypographyProps={{

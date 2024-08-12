@@ -2,18 +2,15 @@ import { useCallback } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Select from '@mui/material/Select';
-import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
@@ -37,8 +34,7 @@ export function RoleTableToolbar({ filters, onResetPage }) {
   );
 
   return (
-    <>
-      <Stack
+    <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{ xs: 'column', md: 'row' }}
@@ -48,7 +44,7 @@ export function RoleTableToolbar({ filters, onResetPage }) {
           <InputLabel>Status</InputLabel>
           <Select value={filters.state.status} onChange={handleFilterStatus} label="Status">
             <MenuItem value="all">All</MenuItem>
-            <MenuItem value={true}>Active</MenuItem>
+            <MenuItem value>Active</MenuItem>
             <MenuItem value={false}>InActive</MenuItem>
           </Select>
         </FormControl>
@@ -73,6 +69,5 @@ export function RoleTableToolbar({ filters, onResetPage }) {
           </IconButton>
         </Stack>
       </Stack>
-    </>
   );
 }

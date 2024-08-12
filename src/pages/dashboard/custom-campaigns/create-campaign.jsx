@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
+
 import { CreateCampaignView } from 'src/sections/campaigns/view/create-campagin';
 
 // ----------------------------------------------------------------------

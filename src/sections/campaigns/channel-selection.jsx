@@ -1,19 +1,21 @@
-import { Scrollbar } from 'src/components/scrollbar';
-import { ChannelItem } from './channel-item';
-import { ChannelSearchToolbar } from './channel-search-toolbar';
-import Box from '@mui/material/Box';
-import { useCallback } from 'react';
-import { useChannels } from 'src/actions/custom-campaigns';
-import { endpoints } from 'src/utils/axios';
-import { LoadingScreen } from 'src/components/loading-screen';
 import { m } from 'framer-motion';
+import { useCallback } from 'react';
 
+import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
+import { endpoints } from 'src/utils/axios';
+
+import { useChannels } from 'src/actions/custom-campaigns';
 import { PageNotFoundIllustration } from 'src/assets/illustrations';
 
+import { Scrollbar } from 'src/components/scrollbar';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { varBounce, MotionContainer } from 'src/components/animate';
+
+import { ChannelItem } from './channel-item';
+import { ChannelSearchToolbar } from './channel-search-toolbar';
 
 export function ChannelSelection({ campagineData, updateCampaignData }) {
   const { fetchChannels, loading, error } = useChannels();
@@ -40,7 +42,6 @@ export function ChannelSelection({ campagineData, updateCampaignData }) {
       return;
     }
     const channels = await fetchChannels(endpoints.customCampaigns.getchannels, campagineData.url);
-    console.log(channels, 'channels');
     updateCampaignData('channel', { ChannelsList: channels, selectedChannel: null });
     updateCampaignData('videos', {
       selectedVideos: [],
@@ -58,7 +59,7 @@ export function ChannelSelection({ campagineData, updateCampaignData }) {
   );
 
   const renderError = (
-    <Box sx={{ p: 5 }} textAlign={'center'}>
+    <Box sx={{ p: 5 }} textAlign="center">
       <Container component={MotionContainer}>
         <m.div variants={varBounce().in}>
           <Typography variant="h3" sx={{ mb: 2 }}>

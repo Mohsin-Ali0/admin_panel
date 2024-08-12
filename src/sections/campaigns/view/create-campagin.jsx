@@ -1,15 +1,5 @@
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
+import { useState, useCallback } from 'react';
 
-import { paths } from 'src/routes/paths';
-
-import { useTabs } from 'src/hooks/use-tabs';
-
-import { DashboardContent } from 'src/layouts/dashboard';
-import { _userAbout, _userPlans, _userPayment, _userInvoices, _userAddressBook } from 'src/_mock';
-
-import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import Box from '@mui/material/Box';
 import Step from '@mui/material/Step';
 import Stack from '@mui/material/Stack';
@@ -19,13 +9,23 @@ import Stepper from '@mui/material/Stepper';
 import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 
+import { paths } from 'src/routes/paths';
+
 import { varAlpha } from 'src/theme/styles';
+import { DashboardContent } from 'src/layouts/dashboard';
+
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { VideoSelection } from '../videos-selection';
+import { BudgetSelection } from '../budget-selection';
 import { AudienceSelection } from '../audience-intrest';
 import { ChannelSelection } from '../channel-selection';
-import { BudgetSelection } from '../budget-selection';
-import { useCallback, useState } from 'react';
+import { ReviewSubmit } from '../review-submit';
+import axios, { endpoints } from 'src/utils/axios';
+import { toast } from 'sonner';
+import { PaymentLinkScreen } from '../payment-link';
+import { LoadingScreen } from 'src/components/loading-screen';
+import { jwtDecode } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 
@@ -35,14 +35,15 @@ const steps = [
   'Choose Videos to Promote',
   'Select Audience and Intrest',
   'Set Budget',
+  'Review and Submit',
 ];
 
 export function CreateCampaignView() {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(5);
 
   const [skipped, setSkipped] = useState(new Set());
 
-  const [campagineData, setCampagineData] = useState({
+  const [campaignData, setcampaignData] = useState({
     channel: {
       selectedChannel: null,
       ChannelsList: [],
@@ -52,19 +53,32 @@ export function CreateCampaignView() {
       selectedVideos: [],
       VideosList: [],
       url: '',
+      selectedType: 1,
+      ManualSelected: false,
     },
     audience: {
+      automated: true,
       age: [],
       intrest: [],
       countries: [],
       tags: [],
+      gender: [],
     },
     budget: {
-      amount: 0, //in cents
+      amount: 0, // in cents
       currency: 'USD',
-      percentage: 0,
+      percentage: {
+        custom_percentage_enabled: false,
+        custom_percentage_amount: 0,
+        custom_tax_percentage: 0,
+      },
     },
   });
+
+  const [LinkStatus, setLinkStatus] = useState(true);
+  const [paymentLink, setPaymentLink] = useState(
+    'http://localhost:3000/dashboard/payment/payementdetails=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYW1wYWlnbklkIjoiNjZiYTUxZDZkN2YwNzM3ZDlmNjFlMDU5IiwiaWF0IjoxNzIzNDg2Njc4fQ.aZykCNGFo0h_MUyPSq2nxFb9rGLjBJJmElu9-Ce09Gs'
+  );
 
   const isStepOptional = (step) => step === 2;
 
@@ -72,11 +86,23 @@ export function CreateCampaignView() {
 
   // Check if the current step is valid
   const isStepValid = (step) => {
-    if (step === 0) {
-      // Ensure a channel is selected for step 0
-      return campagineData.channel.selectedChannel !== null;
+    switch (step) {
+      case 0:
+        return campaignData.channel.selectedChannel !== null;
+      case 1:
+        return campaignData.videos.selectedVideos.length > 0;
+      case 2:
+        return true;
+      case 3:
+        return (
+          campaignData.budget.amount > 0 &&
+          (campaignData.budget.percentage.custom_percentage_enabled === false ||
+            (campaignData.budget.percentage.custom_percentage_enabled === true &&
+              campaignData.budget.percentage.custom_tax_percentage > 0))
+        ); // Other steps do not have specific conditions for now
+      default:
+        return true;
     }
-    return true; // Other steps do not have specific conditions for now
   };
 
   const handleNext = useCallback(() => {
@@ -86,12 +112,19 @@ export function CreateCampaignView() {
       newSkipped.delete(activeStep);
     }
 
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    if (activeStep === steps.length - 1) {
+      // Call the API when the last step is reached
+      CreateCampaignandGeneratePaymentLink();
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
     setSkipped(newSkipped);
   }, [activeStep, skipped]);
 
   const handleBack = useCallback(() => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setLinkStatus(false);
   }, []);
 
   const handleSkip = useCallback(() => {
@@ -105,6 +138,9 @@ export function CreateCampaignView() {
       newSkipped.add(activeStep);
       return newSkipped;
     });
+    updateCampaignData('audience', {
+      automated: true,
+    });
   }, [activeStep]);
 
   const handleReset = useCallback(() => {
@@ -112,7 +148,7 @@ export function CreateCampaignView() {
   }, []);
 
   const updateCampaignData = useCallback((key, value) => {
-    setCampagineData((prevData) => ({
+    setcampaignData((prevData) => ({
       ...prevData,
       [key]: {
         ...prevData[key],
@@ -120,6 +156,35 @@ export function CreateCampaignView() {
       },
     }));
   }, []);
+
+  const CreateCampaignandGeneratePaymentLink = async () => {
+    const { channel, videos, audience, budget } = campaignData;
+    const { selectedChannel } = channel;
+    const { selectedVideos } = videos;
+    try {
+      const userId = jwtDecode(sessionStorage.getItem('jwt_access_token')).id;
+      const res = await axios.post(endpoints.customCampaigns.createCampaign, {
+        channel: selectedChannel,
+        videos: selectedVideos,
+        audience: audience,
+        budget: budget,
+        userId,
+      });
+      console.log(res.data, 'res');
+      if (res.status === 200) {
+        setLinkStatus(true);
+        toast.success('Campaign Created Successfully');
+        // setPaymentLink(res.data.redirectUrl);
+        // console.log(res.data.redirectUrl, 'res.data.redirectUrl');
+        // window.location.href = res.data.payment_link;
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      toast.error('Something went wrong');
+      console.error(error);
+    }
+  };
 
   return (
     <DashboardContent>
@@ -153,7 +218,16 @@ export function CreateCampaignView() {
               bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
             }}
           >
-            <Typography sx={{ my: 1 }}>All steps completed - you&apos;re finished</Typography>
+            {LinkStatus ? (
+              <PaymentLinkScreen paymentLink={paymentLink} />
+            ) : (
+              <>
+                <LoadingScreen />
+                <Typography variant="h4" textAlign={'center'} sx={{ p: 4 }}>
+                  Creating the Campaign Please wait
+                </Typography>
+              </>
+            )}
           </Paper>
 
           <Box sx={{ display: 'flex' }}>
@@ -173,28 +247,31 @@ export function CreateCampaignView() {
           >
             {activeStep === 0 && (
               <ChannelSelection
-                campagineData={campagineData.channel}
+                campagineData={campaignData.channel}
                 updateCampaignData={updateCampaignData}
               />
             )}
             {activeStep === 1 && (
               <VideoSelection
-                channelId={campagineData.channel.selectedChannel?.channelId}
-                campagineData={campagineData.videos}
+                channelId={campaignData.channel.selectedChannel?.channelId}
+                campagineData={campaignData.videos}
                 updateCampaignData={updateCampaignData}
               />
             )}
             {activeStep === 2 && (
               <AudienceSelection
-                campagineData={campagineData.audience}
+                campaignData={campaignData.audience}
                 updateCampaignData={updateCampaignData}
               />
             )}
             {activeStep === 3 && (
               <BudgetSelection
-                campagineData={campagineData.budget}
+                campaignData={campaignData.budget}
                 updateCampaignData={updateCampaignData}
               />
+            )}
+            {activeStep === 4 && (
+              <ReviewSubmit campaignData={campaignData} updateCampaignData={updateCampaignData} />
             )}
           </Paper>
 
@@ -211,7 +288,7 @@ export function CreateCampaignView() {
             <Button
               variant="contained"
               onClick={handleNext}
-              // disabled={!isStepValid(activeStep)} // Disable button if the current step is invalid
+              disabled={!isStepValid(activeStep)} // Disable button if the current step is invalid
             >
               {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
             </Button>

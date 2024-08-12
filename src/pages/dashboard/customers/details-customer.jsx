@@ -3,9 +3,10 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-
 import { useGetcustomer } from 'src/actions/customers';
+
 import { LoadingScreen } from 'src/components/loading-screen';
+
 import { CustomerDetailsView } from 'src/sections/customers/view';
 
 // ----------------------------------------------------------------------

@@ -22,7 +22,6 @@ import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks';
 import { signInWithPassword } from 'src/auth/context/jwt';
-import { Toaster, toast } from 'sonner';
 
 // ----------------------------------------------------------------------
 
