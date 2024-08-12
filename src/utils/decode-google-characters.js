@@ -1,8 +1,6 @@
 export const decodeGoogleSpecialCharacters = (text) => {
   // Decode HTML entities
-  text = text?.replace(/&#(\d+);/g, function (match, dec) {
-    return String.fromCharCode(dec);
-  });
+  text = text?.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
   // Decode common special characters
   const specialCharacters = {
     '&amp;': '&',

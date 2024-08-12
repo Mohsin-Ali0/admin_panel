@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -16,6 +16,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
+
+import axios, { endpoints } from 'src/utils/axios';
 
 import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -38,11 +40,11 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { jwtDecode } from 'src/auth/context/jwt';
+
 import { RoleTableRow } from '../role-table-row';
 import { RoleTableToolbar } from '../role-table-toolbar';
 import { RoleTableFiltersResult } from '../role-table-filters-result';
-import axios, { endpoints } from 'src/utils/axios';
-import { jwtDecode } from 'src/auth/context/jwt';
 // ----------------------------------------------------------------------
 const ROLE_STATUS_OPTIONS = [
   { value: true, label: 'Active' },
@@ -92,9 +94,9 @@ export function RoleListView() {
 
   const handleUpdateStatus = useCallback(
     async (row) => {
-      let Payload = {
+      const Payload = {
         role_id: row._id,
-        status: row.role_status === true ? false : true,
+        status: row.role_status !== true,
         user_id: jwtDecode(sessionStorage.getItem('jwt_access_token')).id,
       };
       await axios

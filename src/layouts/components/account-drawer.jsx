@@ -21,12 +21,11 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateAvatar } from 'src/components/animate';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { jwtDecode } from 'src/auth/context/jwt';
 
 import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
-import { jwtDecode } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 

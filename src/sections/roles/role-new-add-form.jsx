@@ -1,20 +1,25 @@
 import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import { Checkbox } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { useRouter } from 'src/routes/hooks';
-import { Form, Field } from 'src/components/hook-form';
-import { Checkbox } from '@mui/material';
-import { toast } from 'src/components/snackbar';
+
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
+
+import { toast } from 'src/components/snackbar';
+import { Form, Field } from 'src/components/hook-form';
+
 import { jwtDecode } from 'src/auth/context/jwt';
+
 import axios, { endpoints } from '../../utils/axios';
 
 // Define the schema with the screens array

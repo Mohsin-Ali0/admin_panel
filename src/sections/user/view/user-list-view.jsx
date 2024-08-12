@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -17,6 +17,8 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useSetState } from 'src/hooks/use-set-state';
 
+import axios, { endpoints } from 'src/utils/axios';
+
 import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -24,26 +26,22 @@ import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  emptyRows,
   rowInPage,
   TableNoData,
   getComparator,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { jwtDecode } from 'src/auth/context/jwt';
+
 import { UserTableRow } from '../user-table-row';
 import { UserTableToolbar } from '../user-table-toolbar';
 import { UserTableFiltersResult } from '../user-table-filters-result';
-import axios, { endpoints } from 'src/utils/axios';
-import { jwtDecode } from 'src/auth/context/jwt';
-import { useGetUsers } from 'src/actions/user';
 // ----------------------------------------------------------------------
 const ROLE_STATUS_OPTIONS = [
   { value: true, label: 'Active' },
@@ -93,9 +91,9 @@ export function UserListView() {
 
   const handleUpdateStatus = useCallback(
     async (row) => {
-      let Payload = {
+      const Payload = {
         user_id: row._id,
-        status: row.user_status === true ? false : true,
+        status: row.user_status !== true,
         updatedBy: jwtDecode(sessionStorage.getItem('jwt_access_token')).id,
       };
       await axios
@@ -173,8 +171,7 @@ export function UserListView() {
     }
   }
   return (
-    <>
-      <DashboardContent>
+    <DashboardContent>
         <CustomBreadcrumbs
           heading="Users"
           links={[
@@ -306,7 +303,6 @@ export function UserListView() {
           />
         </Card>
       </DashboardContent>
-    </>
   );
 }
 

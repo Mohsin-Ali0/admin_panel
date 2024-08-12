@@ -1,12 +1,12 @@
 import { Helmet } from 'react-helmet-async';
-import { useEffect } from 'react';
 
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/config-global';
-import { RoleEditView } from 'src/sections/roles/view/roles-edit';
-import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { useGetUser } from 'src/actions/user';
+
+import { MotionLazy } from 'src/components/animate/motion-lazy';
+
 import { UserEditView } from 'src/sections/user/view';
 
 // ----------------------------------------------------------------------

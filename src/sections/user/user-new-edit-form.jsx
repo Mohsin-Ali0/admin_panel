@@ -1,7 +1,7 @@
 import { z as zod } from 'zod';
-import { useEffect, useMemo, useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useMemo, useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -9,22 +9,24 @@ import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { Divider, MenuItem, IconButton, InputAdornment } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { fData } from 'src/utils/format-number';
+import axios, { endpoints } from 'src/utils/axios';
+
+import { refreshUser } from 'src/actions/user';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import axios, { endpoints } from 'src/utils/axios';
-import { Divider, IconButton, InputAdornment, MenuItem } from '@mui/material';
-import { _roles } from 'src/_mock';
-import { useBoolean } from 'src/hooks/use-boolean';
 import { Iconify } from 'src/components/iconify';
+import { Form, Field, schemaHelper } from 'src/components/hook-form';
+
 import { jwtDecode } from 'src/auth/context/jwt';
-import { refreshUser } from 'src/actions/user';
 
 // ----------------------------------------------------------------------
 
@@ -78,9 +80,9 @@ export function UserNewEditForm({ currentUser }) {
       username: currentUser?.username || '',
       user_email: currentUser?.user_email || '',
       role: currentUser?.role_id || '', // Assuming role_id is used for the role field
-      createdBy: currentUser?.createdBy?.first_name + ' ' + currentUser?.createdBy?.last_name || '',
+      createdBy: `${currentUser?.createdBy?.first_name  } ${  currentUser?.createdBy?.last_name}` || '',
       updatedBy: currentUser?.updatedBy
-        ? currentUser?.updatedBy?.first_name + ' ' + currentUser?.updatedBy?.last_name
+        ? `${currentUser?.updatedBy?.first_name  } ${  currentUser?.updatedBy?.last_name}`
         : 'Not Updated Yet',
       password: '',
     }),
@@ -254,7 +256,7 @@ export function UserNewEditForm({ currentUser }) {
 
                 <Stack direction="row" alignItems="center" spacing={3}>
                   <Field.Text name="createdBy" label="Created by" disabled />
-                  <Field.Text name="updatedBy" label="Last Updated by" disabled={true} />
+                  <Field.Text name="updatedBy" label="Last Updated by" disabled />
                 </Stack>
               </Stack>
             )}

@@ -36,7 +36,7 @@ export function useGetRoles() {
 
 export function useGetRole(roleId) {
   //   const url = roleId ? [endpoints.roles.getbyId, { params: { roleId } }] : '';
-  const url = roleId ? [endpoints.roles.getbyId + `/${roleId}`] : '';
+  const url = roleId ? [`${endpoints.roles.getbyId  }/${roleId}`] : '';
 
   const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions);
   const memoizedValue = useMemo(

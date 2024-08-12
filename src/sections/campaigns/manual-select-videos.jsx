@@ -1,33 +1,34 @@
+import { m } from 'framer-motion';
+import { useState, useCallback } from 'react';
+
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { decodeGoogleSpecialCharacters } from 'src/utils/decode-google-characters';
-import { ChannelSearchToolbar } from './channel-search-toolbar';
-import { useCallback, useState } from 'react';
-import { endpoints } from 'src/utils/axios';
-import { useManualVideos } from 'src/actions/custom-campaigns';
-import { LoadingScreen } from 'src/components/loading-screen';
-import { m } from 'framer-motion';
-
+import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
+import { endpoints } from 'src/utils/axios';
+import { decodeGoogleSpecialCharacters } from 'src/utils/decode-google-characters';
+
+import { useManualVideos } from 'src/actions/custom-campaigns';
 import { PageNotFoundIllustration } from 'src/assets/illustrations';
 
+import { LoadingScreen } from 'src/components/loading-screen';
 import { varBounce, MotionContainer } from 'src/components/animate';
+
+import { ChannelSearchToolbar } from './channel-search-toolbar';
+
 export const ManuallySelectVideos = ({ campagineData, updateCampaignData, channelId }) => {
   const [searchUrl, setSearchUrl] = useState(campagineData.url); // Separate state for search URL
   const { fetchVideos, loading, error } = useManualVideos();
-  console.log(loading, error, 'loading, error');
   const handleVideoClick = useCallback(
     (video) => {
       const isAlreadySelected = campagineData.selectedVideos.find(
         (v) => v.videoId === video.videoId
       );
-
       if (isAlreadySelected) {
         updateCampaignData('videos', {
           selectedVideos: campagineData.selectedVideos.filter((v) => v.videoId !== video.videoId),
@@ -67,9 +68,8 @@ export const ManuallySelectVideos = ({ campagineData, updateCampaignData, channe
         videoId: isUrl ? videoId : null,
       },
     });
-    console.log(VideosList, 'VideosList');
     updateCampaignData('videos', {
-      VideosList: VideosList,
+      VideosList,
       url: '',
     });
     // const videos = await axios.post(endpoints.customCampaigns.getvideos, {
@@ -102,7 +102,7 @@ export const ManuallySelectVideos = ({ campagineData, updateCampaignData, channe
   );
 
   const renderError = (
-    <Box sx={{ p: 5 }} textAlign={'center'}>
+    <Box sx={{ p: 5 }} textAlign="center">
       <Container component={MotionContainer}>
         <m.div variants={varBounce().in}>
           <Typography variant="h3" sx={{ mb: 2 }}>
@@ -162,7 +162,7 @@ export const ManuallySelectVideos = ({ campagineData, updateCampaignData, channe
                 Remove
               </Button>
 
-              <Stack sx={{ p: 3, pb: 0 }} alignItems={'center'} textAlign={'center'}>
+              <Stack sx={{ p: 3, pb: 0 }} alignItems="center" textAlign="center">
                 <Avatar
                   alt={video.title}
                   src={video.thumbnail}
@@ -177,7 +177,7 @@ export const ManuallySelectVideos = ({ campagineData, updateCampaignData, channe
                 />
               </Stack>
               <Divider sx={{ borderStyle: 'dashed' }} />
-              <Stack sx={{ p: 3, pb: 2 }} alignItems={'center'} textAlign={'center'}>
+              <Stack sx={{ p: 3, pb: 2 }} alignItems="center" textAlign="center">
                 <Typography variant="button" sx={{ color: 'text.primary' }}>
                   {decodeGoogleSpecialCharacters(video.title)}
                 </Typography>
@@ -207,7 +207,7 @@ const ManualSelection = ({ row, isSelected, onClick }) => {
         },
       }}
     >
-      <Stack sx={{ p: 3, pb: 0 }} alignItems={'center'} textAlign={'center'}>
+      <Stack sx={{ p: 3, pb: 0 }} alignItems="center" textAlign="center">
         <Avatar
           alt={row.title}
           src={row.thumbnail}
@@ -223,7 +223,7 @@ const ManualSelection = ({ row, isSelected, onClick }) => {
       </Stack>
 
       <Divider sx={{ borderStyle: 'dashed' }} />
-      <Stack sx={{ p: 3, pb: 2 }} alignItems={'center'} textAlign={'center'}>
+      <Stack sx={{ p: 3, pb: 2 }} alignItems="center" textAlign="center">
         <Typography variant="button" sx={{ color: 'text.primary' }}>
           {decodeGoogleSpecialCharacters(row.title)}
         </Typography>

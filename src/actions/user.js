@@ -1,5 +1,5 @@
-import useSWR, { mutate } from 'swr';
 import { useMemo } from 'react';
+import useSWR, { mutate } from 'swr';
 
 import { fetcher, endpoints } from 'src/utils/axios';
 
@@ -34,7 +34,7 @@ export function useGetUsers() {
 // ----------------------------------------------------------------------
 
 export function useGetUser(userId) {
-  const url = userId ? [endpoints.users.getbyId + `/${userId}`] : '';
+  const url = userId ? [`${endpoints.users.getbyId  }/${userId}`] : '';
 
   const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions);
 
@@ -76,6 +76,6 @@ export function useSearchUser(query) {
 }
 
 export const refreshUser = (userId) => {
-  const url = userId ? [endpoints.users.getbyId + `/${userId}`] : null;
+  const url = userId ? [`${endpoints.users.getbyId  }/${userId}`] : null;
   mutate(url); // Force a revalidation for the specific key (userId)
 };

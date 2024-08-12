@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import { ComponentBlock, ComponentContainer } from 'src/components/compoenet-block/component-block';
+import { useForm } from 'react-hook-form';
+import { useRef, useMemo, useState, useEffect } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import { Chip, Divider, Checkbox, FormControlLabel } from '@mui/material';
 
-import { CountrySelect } from 'src/components/country-select';
-import { useForm, FormProvider } from 'react-hook-form';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { _tags } from 'src/_mock';
-import { Chip } from '@mui/material';
-const options = ['Option 1', 'Option 2'];
+
+import { Form, Field } from 'src/components/hook-form';
+import { ComponentBlock, ComponentContainer } from 'src/components/compoenet-block/component-block';
+
 const GENDER_OPTIONS = [
   { label: 'All genders', value: 'All genders' },
   { label: 'Men', value: 'Men' },
@@ -53,137 +52,174 @@ const INTREST_OPTIONS = [
   { label: 'Travel & Transportation', value: 'Travel & Transportation' },
   { label: 'World Localities', value: 'World Localities' },
 ];
-export function AudienceSelection() {
-  const [inputValue, setInputValue] = useState('');
 
-  const [value, setValue] = useState(options[0]);
+export function AudienceSelection({ campaignData, updateCampaignData }) {
+  const [auto, setAuto] = useState(campaignData?.automated);
+  const prevFormValues = useRef({});
 
-  const [singleLabel, setSingleLabel] = useState('Armenia');
+  const handleChangeAuto = (event) => {
+    setAuto(event.target.checked);
+    updateCampaignData('audience', {
+      automated: event.target.checked,
+    });
+  };
 
-  const [singleCode, setSingleCode] = useState('AR');
+  const defaultValues = useMemo(
+    () => ({
+      age: campaignData?.age || [],
+      intrest: campaignData?.intrest || [],
+      countries: campaignData?.countries || [],
+      tags: campaignData?.tags || [],
+      gender: campaignData?.gender || [],
+    }),
+    [campaignData]
+  );
 
-  const [multiLabel, setMultiLabel] = useState(['Austria', 'Australia', 'Bulgaria']);
+  const methods = useForm({ defaultValues });
+  const { watch } = methods;
+  const formValues = watch();
 
-  const [multiCode, setMultiCode] = useState(['BJ', 'BL', 'BM']);
+  useEffect(() => {
+    const formValuesStr = JSON.stringify(formValues);
+    const prevFormValuesStr = JSON.stringify(prevFormValues.current);
 
-  const methods = useForm({
-    defaultValues: {
-      gender: [],
-    },
-  });
+    if (formValuesStr !== prevFormValuesStr) {
+      updateCampaignData('audience', {
+        age: formValues.age,
+        intrest: formValues.intrest,
+        countries: formValues.countries,
+        tags: formValues.tags,
+        gender: formValues.gender,
+      });
+      prevFormValues.current = formValues;
+    }
+  }, [formValues, campaignData]);
+
   return (
-    <FormProvider {...methods}>
-      <ComponentContainer title="Audience and Intrest">
-        <ComponentBlock title="Countries">
-          <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
-            <Typography variant="body1">Select the countries you want to target</Typography>
-          </Box>
+    <>
+      <FormControlLabel
+        control={<Checkbox name="switch-Auto" checked={auto} onChange={handleChangeAuto} />}
+        label="Automatically add the most relevant targeting for your channel"
+        sx={{ alignSelf: 'flex-start' }}
+      />
 
-          <Stack spacing={1.5} sx={{ width: 1 }}>
-            <CountrySelect
-              id="multiple-label"
-              multiple
-              fullWidth
-              // limitTags={3}
-              label="Choose countries"
-              placeholder="Choose countries"
-              value={multiLabel}
-              onChange={(event, newValue) => setMultiLabel(newValue)}
-            />
-            <Stack
+      <Divider sx={{ my: 5 }} />
+      {!auto && (
+        <Form methods={methods}>
+          <ComponentContainer>
+            <ComponentBlock title="Countries">
+              <CountrySelection />
+            </ComponentBlock>
+            <ComponentBlock
+              title="Audience"
               sx={{
-                p: 1,
-                width: 1,
-                minHeight: 54,
-                borderRadius: 1,
-                textAlign: 'right',
-                typography: 'body2',
-                bgcolor: 'background.neutral',
+                rowGap: 5,
+                columnGap: 3,
+                display: 'grid',
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
               }}
             >
-              <small>Output:</small>{' '}
-              <strong>
-                <small>{multiLabel.join(', ') ?? '-'}</small>
-              </strong>
-            </Stack>
-          </Stack>
-        </ComponentBlock>
-        <ComponentBlock
-          title="Audience"
-          sx={{
-            rowGap: 5,
-            columnGap: 3,
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-          }}
-        >
-          <ComponentBlock title="Gender">
-            <Stack spacing={1}>
-              <Typography variant="subtitle2">Gender</Typography>
-              {/* <Field.MultiCheckbox row name="gender" options={GENDER_OPTIONS} sx={{ gap: 2 }} /> */}
-              <Field.RadioGroup row name="Gender" options={GENDER_OPTIONS} />
-            </Stack>
-          </ComponentBlock>
+              <ComponentBlock title="Gender">
+                <GenderSelection />
+              </ComponentBlock>
+              <ComponentBlock title="Age">
+                <AgeSelection />
+              </ComponentBlock>
+            </ComponentBlock>
+            <ComponentBlock title="Interests">
+              <InterestSelection />
+            </ComponentBlock>
+            <ComponentBlock title="Keywords">
+              <KeywordSelection />
+            </ComponentBlock>
+          </ComponentContainer>
+        </Form>
+      )}
+    </>
+  );
+}
 
-          <ComponentBlock title="Age">
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2">Age</Typography>
-              <Field.MultiCheckbox row name="gender" options={AGE_OPTIONS} sx={{ gap: 2 }} />
-            </Stack>
-          </ComponentBlock>
-        </ComponentBlock>
-        <ComponentBlock title="Interests">
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Interests</Typography>
-            <Field.MultiCheckbox
-              row
-              name="gender"
-              options={INTREST_OPTIONS}
-              sx={{
-                gap: 2,
-                display: 'grid',
-                gridTemplateColumns: {
-                  xs: 'repeat(1, 1fr)',
-                  md: 'repeat(4, 1fr)',
-                  sm: 'repeat(2, 1fr)',
-                },
-              }}
-            />
-          </Stack>
-        </ComponentBlock>
-        <ComponentBlock title="Keywords">
-          <Stack spacing={3} sx={{ p: 3, width: '100%' }}>
-            <Typography variant="subtitle2">Tags</Typography>
+function CountrySelection() {
+  return (
+    <Stack spacing={3} sx={{ p: 3, width: '100%' }}>
+      <Typography variant="caption" sx={{ color: 'text.primary' }}>
+        The number of estimated views can vary if you manually choose countries
+      </Typography>
+      <Field.CountrySelect multiple name="countries" placeholder="+ Countries" />
+    </Stack>
+  );
+}
 
-            <Field.Autocomplete
-              name="tags"
-              placeholder="+ Tags"
-              multiple
-              freeSolo
-              disableCloseOnSelect
-              options={_tags.map((option) => option)}
-              getOptionLabel={(option) => option}
-              renderOption={(props, option) => (
-                <li {...props} key={option}>
-                  {option}
-                </li>
-              )}
-              renderTags={(selected, getTagProps) =>
-                selected.map((option, index) => (
-                  <Chip
-                    {...getTagProps({ index })}
-                    key={option}
-                    label={option}
-                    size="small"
-                    color="info"
-                    variant="soft"
-                  />
-                ))
-              }
+function GenderSelection() {
+  return (
+    <Stack spacing={1}>
+      <Typography variant="subtitle2">Gender</Typography>
+      <Field.RadioGroup row name="gender" options={GENDER_OPTIONS} />
+    </Stack>
+  );
+}
+
+function AgeSelection() {
+  return (
+    <Stack spacing={1.5}>
+      <Typography variant="subtitle2">Age</Typography>
+      <Field.MultiCheckbox row name="age" options={AGE_OPTIONS} sx={{ gap: 2 }} />
+    </Stack>
+  );
+}
+
+function InterestSelection() {
+  return (
+    <Stack spacing={1.5}>
+      <Typography variant="subtitle2">Interests</Typography>
+      <Field.MultiCheckbox
+        row
+        name="intrest"
+        options={INTREST_OPTIONS}
+        sx={{
+          gap: 2,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(4, 1fr)', sm: 'repeat(2, 1fr)' },
+        }}
+      />
+    </Stack>
+  );
+}
+
+function KeywordSelection() {
+  return (
+    <Stack spacing={3} sx={{ p: 3, width: '100%' }}>
+      <Typography variant="caption" sx={{ color: 'text.Secondary' }}>
+        Please add up to 10 keywords or phrases that can help our algorithms show your channel to
+        people searching for similar content
+      </Typography>
+      <Field.Autocomplete
+        name="tags"
+        label="Tags"
+        placeholder="+ Tags"
+        multiple
+        freeSolo
+        disableCloseOnSelect
+        options={_tags.map((option) => option)}
+        getOptionLabel={(option) => option}
+        renderOption={(props, option) => (
+          <li {...props} key={option}>
+            {option}
+          </li>
+        )}
+        renderTags={(selected, getTagProps) =>
+          selected.map((option, index) => (
+            <Chip
+              {...getTagProps({ index })}
+              key={option}
+              label={option}
+              size="small"
+              color="info"
+              variant="soft"
             />
-          </Stack>
-        </ComponentBlock>
-      </ComponentContainer>
-    </FormProvider>
+          ))
+        }
+      />
+    </Stack>
   );
 }
