@@ -1,35 +1,35 @@
-name: Deploy React App to cPanel Subdomain
-
 on:
   push:
     branches:
-      - main # Triggers the workflow on push to the main branch
+      - main
+name: 🚀 Deploy React App to admin.vidtrail.com on Push
 
 jobs:
-  deploy:
+  web-deploy:
+    name: 🎉 Deploy to Subdomain
     runs-on: ubuntu-latest
-
+    env:
+      CI: false
     steps:
-      - name: Checkout code
+      - name: 🚚 Get latest code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Use Node.js 20
+        uses: actions/setup-node@v2
         with:
-          node-version: '20' # Ensure this matches your project's Node.js version
+          node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
+      - name: 🔨 Build Project
+        run: |
+          npm install
+          npm run build
 
-      - name: Build the React app
-        run: npm run build
-
-      - name: Deploy to cPanel Subdomain
-        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.vidtrail.com
-          username: ${{ secrets.CPANEL_USERNAME }}
-          password: ${{ secrets.CPANEL_PASSWORD }}
-          local-dir: build/
-          server-dir: /admin.vidtrail.com/ # Path to your subdomain's directory
-          protocol: ftps
+          server: ${{ secrets.GIT_CPANEL_REACT_SERVER }}
+          username: ${{ secrets.GIT_CPANEL_REACT_USER }}
+          password: ${{ secrets.GIT_CPANEL_REACT_PWD }}
+          protocol: ${{ secrets.GIT_CPANEL_REACT_PROTOCOL }}
+          local-dir: ./build/
+          server-dir: /admin.vidtrail.com/ # Path to your subdomain directory
