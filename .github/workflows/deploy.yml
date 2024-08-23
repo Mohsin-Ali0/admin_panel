@@ -31,5 +31,5 @@ jobs:
           username: ${{ secrets.GIT_CPANEL_REACT_USER }}
           password: ${{ secrets.GIT_CPANEL_REACT_PWD }}
           protocol: ${{ secrets.GIT_CPANEL_REACT_PROTOCOL }}
-          local-dir: ./build/
-          server-dir: /admin.vidtrail.com/ # Path to your subdomain directory
+          local-dir: ./dist/ # Change this to ./dist/ to match your actual build directory
+          server-dir: /admin.vidtrail.com/
