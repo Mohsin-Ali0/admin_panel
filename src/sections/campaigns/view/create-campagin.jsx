@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -11,21 +12,22 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
+import axios, { endpoints } from 'src/utils/axios';
+
 import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
+import { jwtDecode } from 'src/auth/context/jwt';
+
+import { ReviewSubmit } from '../review-submit';
+import { PaymentLinkScreen } from '../payment-link';
 import { VideoSelection } from '../videos-selection';
 import { BudgetSelection } from '../budget-selection';
 import { AudienceSelection } from '../audience-intrest';
 import { ChannelSelection } from '../channel-selection';
-import { ReviewSubmit } from '../review-submit';
-import axios, { endpoints } from 'src/utils/axios';
-import { toast } from 'sonner';
-import { PaymentLinkScreen } from '../payment-link';
-import { LoadingScreen } from 'src/components/loading-screen';
-import { jwtDecode } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 
@@ -38,8 +40,8 @@ const steps = [
   'Review and Submit',
 ];
 
-export function CreateCampaignView() {
-  const [activeStep, setActiveStep] = useState(5);
+export function CreateCampaignView({ canEdit }) {
+  const [activeStep, setActiveStep] = useState(0);
 
   const [skipped, setSkipped] = useState(new Set());
 
@@ -76,9 +78,7 @@ export function CreateCampaignView() {
   });
 
   const [LinkStatus, setLinkStatus] = useState(true);
-  const [paymentLink, setPaymentLink] = useState(
-    'http://localhost:3000/dashboard/payment/payementdetails=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYW1wYWlnbklkIjoiNjZiYTUxZDZkN2YwNzM3ZDlmNjFlMDU5IiwiaWF0IjoxNzIzNDg2Njc4fQ.aZykCNGFo0h_MUyPSq2nxFb9rGLjBJJmElu9-Ce09Gs'
-  );
+  const [paymentLink, setPaymentLink] = useState('');
 
   const isStepOptional = (step) => step === 2;
 
@@ -166,17 +166,14 @@ export function CreateCampaignView() {
       const res = await axios.post(endpoints.customCampaigns.createCampaign, {
         channel: selectedChannel,
         videos: selectedVideos,
-        audience: audience,
-        budget: budget,
+        audience,
+        budget,
         userId,
       });
-      console.log(res.data, 'res');
       if (res.status === 200) {
         setLinkStatus(true);
         toast.success('Campaign Created Successfully');
-        // setPaymentLink(res.data.redirectUrl);
-        // console.log(res.data.redirectUrl, 'res.data.redirectUrl');
-        // window.location.href = res.data.payment_link;
+        setPaymentLink(res?.data?.redirectUrl);
       } else {
         toast.error(res.data.message);
       }
@@ -223,7 +220,7 @@ export function CreateCampaignView() {
             ) : (
               <>
                 <LoadingScreen />
-                <Typography variant="h4" textAlign={'center'} sx={{ p: 4 }}>
+                <Typography variant="h4" textAlign="center" sx={{ p: 4 }}>
                   Creating the Campaign Please wait
                 </Typography>
               </>
@@ -275,24 +272,31 @@ export function CreateCampaignView() {
             )}
           </Paper>
 
-          <Stack direction="row">
-            <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-              Back
-            </Button>
-            <Box sx={{ flexGrow: 1 }} />
-            {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                Skip
+          {canEdit && (
+            <Stack direction="row">
+              <Button
+                color="inherit"
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                sx={{ mr: 1 }}
+              >
+                Back
               </Button>
-            )}
-            <Button
-              variant="contained"
-              onClick={handleNext}
-              disabled={!isStepValid(activeStep)} // Disable button if the current step is invalid
-            >
-              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-            </Button>
-          </Stack>
+              <Box sx={{ flexGrow: 1 }} />
+              {isStepOptional(activeStep) && (
+                <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+                  Skip
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                onClick={handleNext}
+                disabled={!isStepValid(activeStep)} // Disable button if the current step is invalid
+              >
+                {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+              </Button>
+            </Stack>
+          )}
         </>
       )}
     </DashboardContent>

@@ -29,7 +29,6 @@ export function CustomerDetailsItems({
       parsedCampaignDetails,
     };
   });
-  console.log(ParsedIntentDetails, 'ParsedIntentDetails');
   const flatSuccessfulPayments = ParsedIntentDetails.flat();
   const successfulPaymentsCount = flatSuccessfulPayments.filter(
     (intent) => intent.payment_status === 'Success'
@@ -80,7 +79,7 @@ export function CustomerDetailsItems({
 
             <ListItemText
               primary={item?.parsedCampaignDetails?.ChannelDetails?.title}
-              secondary={`No of Videos:` + ` ${  item?.parsedCampaignDetails?.Videos?.length}`}
+              secondary={`No of Videos:` + ` ${item?.parsedCampaignDetails?.Videos?.length}`}
               primaryTypographyProps={{ typography: 'body2' }}
               secondaryTypographyProps={{
                 component: 'span',

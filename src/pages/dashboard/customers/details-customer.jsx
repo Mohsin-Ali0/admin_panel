@@ -16,9 +16,7 @@ const metadata = { title: `Customer details | Dashboard - ${CONFIG.site.name}` }
 export default function Page() {
   const { id = '' } = useParams();
 
-  //   const currentOrder = _orders.find((order) => order.id === id);
   const { customer, customerLoading, customerError, customerValidating } = useGetcustomer(id);
-  console.log(customer, 'customer');
   return (
     <>
       <Helmet>

@@ -1,11 +1,12 @@
 import { Controller, useFormContext } from 'react-hook-form';
+
 import TextField from '@mui/material/TextField';
 
 // Utility function to validate and format the input value
-const formatNumber = (value) => {
+const formatNumber = (value) => 
   // Remove non-numeric characters except for decimal point
-  return value.replace(/[^0-9.]/g, '');
-};
+   value.replace(/[^0-9.]/g, '')
+;
 
 // ----------------------------------------------------------------------
 

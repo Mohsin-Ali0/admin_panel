@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useContext } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -21,6 +21,7 @@ import { Form, Field } from 'src/components/hook-form';
 import { jwtDecode } from 'src/auth/context/jwt';
 
 import axios, { endpoints } from '../../utils/axios';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 // Define the schema with the screens array
 const RoleSchema = zod.object({
@@ -44,11 +45,15 @@ const initialScreens = [
   { name: 'Custom Campaigns', view: false, edit: false },
   { name: 'Roles', view: false, edit: false },
   { name: 'Users', view: false, edit: false },
+  { name: 'System Configuration', view: false, edit: false },
 ];
 
 export function RoleNewEditForm({ currentRole }) {
   const router = useRouter();
   const [screens, setScreens] = useState(currentRole?.screens || initialScreens);
+  const { user } = useContext(AuthContext);
+  let permissions = jwtDecode(user.accessToken)?.AllowedScreens;
+  let canEdit = permissions.roles.edit;
 
   const handleCheckboxChange = (index, type) => {
     setScreens((prevScreens) =>
@@ -214,11 +219,13 @@ export function RoleNewEditForm({ currentRole }) {
               ))}
             </Box>
 
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentRole ? 'Create Role' : 'Save changes'}
-              </LoadingButton>
-            </Stack>
+            {canEdit && (
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentRole ? 'Create Role' : 'Save changes'}
+                </LoadingButton>
+              </Stack>
+            )}
           </Card>
         </Grid>
       </Grid>

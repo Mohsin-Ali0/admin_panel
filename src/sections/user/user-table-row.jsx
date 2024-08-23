@@ -19,7 +19,7 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export function UserTableRow({ row, selected, onEditRow, onUpdateStatusRow }) {
+export function UserTableRow({ row, selected, onEditRow, onUpdateStatusRow, canEdit }) {
   const confirm = useBoolean();
   const popover = usePopover();
 
@@ -77,9 +77,11 @@ export function UserTableRow({ row, selected, onEditRow, onUpdateStatusRow }) {
               </IconButton>
             </Tooltip>
 
-            <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-              <Iconify icon="eva:more-vertical-fill" />
-            </IconButton>
+            {canEdit && (
+              <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+                <Iconify icon="eva:more-vertical-fill" />
+              </IconButton>
+            )}
           </Stack>
         </TableCell>
       </TableRow>

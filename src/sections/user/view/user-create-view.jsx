@@ -8,7 +8,7 @@ import { UserNewEditForm } from '../user-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function UserCreateView() {
+export function UserCreateView({ canEdit }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -21,7 +21,7 @@ export function UserCreateView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <UserNewEditForm />
+      <UserNewEditForm canEdit={canEdit} />
     </DashboardContent>
   );
 }

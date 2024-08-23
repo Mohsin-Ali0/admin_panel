@@ -1,3 +1,8 @@
+import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef, useMemo, useEffect, useCallback } from 'react';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -7,15 +12,10 @@ import CardHeader from '@mui/material/CardHeader';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { _tags } from 'src/_mock';
-
-import { Field, Form } from 'src/components/hook-form';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-
-import { z as zod } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { fCurrency } from 'src/utils/format-number';
+
+import { Form, Field } from 'src/components/hook-form';
+import { useGetRevenue } from 'src/actions/configuration';
 
 const NewBudgetSchema = zod.object({
   amount: zod.number().nonnegative().min(4),
@@ -24,16 +24,18 @@ const NewBudgetSchema = zod.object({
 });
 
 export function BudgetSelection({ campaignData, updateCampaignData }) {
+  const { revenue } = useGetRevenue();
   const ChangeCustomPricing = useCallback(
     (e) => {
       updateCampaignData('budget', {
         amount: parseInt(formValues?.amount),
         currency: formValues?.currency,
         percentage: {
-          custom_tax_percentage: parseInt(formValues.taxes),
+          custom_tax_percentage: e.target.checked ? parseInt(formValues.taxes) : revenue,
           custom_percentage_enabled: e.target.checked,
-          custom_percentage_amount:
-            (parseInt(formValues.taxes) * parseInt(formValues.amount)) / 100,
+          custom_percentage_amount: e.target.checked
+            ? (parseInt(formValues.taxes) * parseInt(formValues.amount)) / 100
+            : (parseInt(revenue) * parseInt(formValues.amount)) / 100,
         },
       });
     },
@@ -67,18 +69,19 @@ export function BudgetSelection({ campaignData, updateCampaignData }) {
         amount: parseInt(formValues?.amount),
         currency: formValues?.currency,
         percentage: {
-          custom_tax_percentage: parseInt(formValues.taxes),
-          custom_percentage_enabled: campaignData?.percentage?.custom_percentage_enabled
-            ? true
-            : false,
-          custom_percentage_amount:
-            (parseInt(formValues.taxes) * parseInt(formValues.amount)) / 100,
+          custom_tax_percentage: !!campaignData?.percentage?.custom_percentage_enabled
+            ? parseInt(formValues.taxes)
+            : parseInt(revenue),
+          custom_percentage_enabled: !!campaignData?.percentage?.custom_percentage_enabled,
+          custom_percentage_amount: !!campaignData?.percentage?.custom_percentage_enabled
+            ? (parseInt(formValues.taxes) * parseInt(formValues.amount)) / 100
+            : (parseInt(revenue) * parseInt(formValues.amount)) / 100,
         },
       });
 
       prevFormValues.current = formValues;
     }
-  }, [formValues, campaignData]);
+  }, [formValues, campaignData, revenue]);
 
   const renderPricing = (
     <Card>
@@ -168,9 +171,5 @@ export function BudgetSelection({ campaignData, updateCampaignData }) {
     </Card>
   );
 
-  return (
-    <>
-      <Form methods={methods}>{renderPricing}</Form>
-    </>
-  );
+  return <Form methods={methods}>{renderPricing}</Form>;
 }

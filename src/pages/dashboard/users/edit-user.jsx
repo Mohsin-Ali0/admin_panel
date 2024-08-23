@@ -8,6 +8,9 @@ import { useGetUser } from 'src/actions/user';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 
 import { UserEditView } from 'src/sections/user/view';
+import { useContext } from 'react';
+import { AuthContext } from 'src/auth/context/auth-context';
+import { jwtDecode } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +20,9 @@ export default function Page() {
   const { id = '' } = useParams();
 
   const { user, userLoading, userError, userValidating } = useGetUser(id);
-
+  const userDetails = useContext(AuthContext);
+  let permissions = jwtDecode(userDetails?.user?.accessToken)?.AllowedScreens;
+  let canEdit = permissions.users.edit;
   return (
     <>
       <Helmet>
@@ -26,7 +31,7 @@ export default function Page() {
       {userLoading ? (
         <MotionLazy /> // Or any other loading indicator
       ) : (
-        <UserEditView currentUser={user} />
+        <UserEditView currentUser={user} canEdit={canEdit} />
       )}
     </>
   );

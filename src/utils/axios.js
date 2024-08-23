@@ -67,6 +67,7 @@ export const endpoints = {
     getbyId: '/api/admin/user/getUserById',
     update: '/api/admin/user/updateUser',
     search: '/api/post/search',
+    updatePassword: '/api/admin/user/updatePassword',
   },
   customer: {
     list: '/api/admin/customer/getCustomers',
@@ -79,6 +80,12 @@ export const endpoints = {
     getchannels: '/channel',
     getvideos: '/getchannelvideos',
     createCampaign: 'api/admin/campaign/createCustomCampaign',
+  },
+  configuration: {
+    getConfig: '/api/admin/configuration/getconfigbyId',
+    updateConfig: '/api/admin/configuration/updateconfig',
+    getRevenue: '/api/admin/configuration/getRevenue',
+    getCustomCampaign: '/api/admin/configuration/getCustomCampaignDetails',
   },
   mail: {
     list: '/api/mail/list',

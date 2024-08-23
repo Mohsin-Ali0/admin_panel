@@ -9,7 +9,18 @@ import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Divider, MenuItem, IconButton, InputAdornment } from '@mui/material';
+import {
+  Divider,
+  MenuItem,
+  IconButton,
+  InputAdornment,
+  Button,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  Alert,
+  DialogActions,
+} from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -27,9 +38,9 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { jwtDecode } from 'src/auth/context/jwt';
+import { fDateTime } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
-
 export const NewUserSchema = zod.object({
   user_image: schemaHelper.file({
     message: { required_error: 'Avatar is required!' },
@@ -37,11 +48,7 @@ export const NewUserSchema = zod.object({
   username: zod.string().min(1, { message: 'Username is required!' }),
   first_name: zod.string().min(1, { message: 'First Name is required!' }),
   last_name: zod.string().min(1, { message: 'Last Name is required!' }),
-  password: zod
-    .string()
-    .refine((val) => val.length > 0, { message: 'Password is required!' })
-    .refine((val) => val.length >= 6, { message: 'Password must be at least 6 characters long!' }),
-
+  password: zod.string().optional(), // Make password optional
   user_email: zod
     .string()
     .min(1, { message: 'Email is required!' })
@@ -52,7 +59,7 @@ export const NewUserSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-export function UserNewEditForm({ currentUser }) {
+export function UserNewEditForm({ currentUser, canEdit }) {
   const router = useRouter();
   const [roles, setRoles] = useState([]); // State to store roles
   const passwordShow = useBoolean();
@@ -80,10 +87,11 @@ export function UserNewEditForm({ currentUser }) {
       username: currentUser?.username || '',
       user_email: currentUser?.user_email || '',
       role: currentUser?.role_id || '', // Assuming role_id is used for the role field
-      createdBy: `${currentUser?.createdBy?.first_name  } ${  currentUser?.createdBy?.last_name}` || '',
+      createdBy: `${currentUser?.createdBy?.first_name} ${currentUser?.createdBy?.last_name}` || '',
       updatedBy: currentUser?.updatedBy
-        ? `${currentUser?.updatedBy?.first_name  } ${  currentUser?.updatedBy?.last_name}`
+        ? `${currentUser?.updatedBy?.first_name} ${currentUser?.updatedBy?.last_name}`
         : 'Not Updated Yet',
+      updatedAt: currentUser?.updatedAt ? fDateTime(currentUser?.updatedAt) : 'Not Updated Yet',
       password: '',
     }),
     [currentUser]
@@ -91,7 +99,20 @@ export function UserNewEditForm({ currentUser }) {
 
   const methods = useForm({
     mode: 'onSubmit',
-    resolver: zodResolver(NewUserSchema),
+    resolver: zodResolver(
+      NewUserSchema.refine(
+        (data) => {
+          if (!currentUser && !data.password) {
+            return false;
+          }
+          return true;
+        },
+        {
+          path: ['password'],
+          message: 'Password is required!',
+        }
+      )
+    ),
     defaultValues,
   });
 
@@ -100,6 +121,7 @@ export function UserNewEditForm({ currentUser }) {
     watch,
     control,
     handleSubmit,
+    setError,
     formState: { isSubmitting },
   } = methods;
 
@@ -107,6 +129,16 @@ export function UserNewEditForm({ currentUser }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      if (!currentUser && !data.password) {
+        setError('password', { message: 'Password is required for new users!' });
+        return;
+      }
+
+      if (currentUser && passwordShow.value && !data.password) {
+        setError('password', { message: 'Password is required if you choose to update it!' });
+        return;
+      }
+
       const updatedBy = jwtDecode(sessionStorage.getItem('jwt_access_token')).id;
       const formData = new FormData();
       formData.append('updatedBy', updatedBy);
@@ -118,6 +150,7 @@ export function UserNewEditForm({ currentUser }) {
           formData.append(key, data[key]);
         }
       });
+
       const userEndpoint = currentUser ? endpoints.users.update : endpoints.users.create;
 
       await axios
@@ -134,7 +167,8 @@ export function UserNewEditForm({ currentUser }) {
           toast.error(error.message);
         });
     } catch (error) {
-      console.error(error);
+      console.error('Form submission error:', error);
+      toast.error(error.message || 'An error occurred during form submission');
     }
   });
 
@@ -204,6 +238,17 @@ export function UserNewEditForm({ currentUser }) {
 
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
+            {canEdit && (
+              <Stack alignItems="flex-end" sx={{ mb: 3 }}>
+                {/* <LoadingButton variant="contained">{'Update Password'}</LoadingButton> */}
+                {currentUser && (
+                  <LoadingButton variant="contained" onClick={passwordShow.onTrue}>
+                    Update Password
+                  </LoadingButton>
+                )}
+              </Stack>
+            )}
+
             <Box
               rowGap={3}
               columnGap={2}
@@ -218,24 +263,26 @@ export function UserNewEditForm({ currentUser }) {
               <Field.Text name="first_name" label="First Name" />
               <Field.Text name="last_name" label="Last Name" />
 
-              <Field.Text
-                name="password"
-                label="Password"
-                placeholder="6+ characters"
-                type={passwordShow.value ? 'text' : 'password'}
-                InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={passwordShow.onToggle} edge="end">
-                        <Iconify
-                          icon={passwordShow.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
-                        />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              {!currentUser && (
+                <Field.Text
+                  name="password"
+                  label="Password"
+                  placeholder="6+ characters"
+                  type={passwordShow.value ? 'text' : 'password'}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={passwordShow.onToggle} edge="end">
+                          <Iconify
+                            icon={passwordShow.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                          />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
 
               <Field.Select name="role" label="Role">
                 {roles.map((role) => (
@@ -245,10 +292,6 @@ export function UserNewEditForm({ currentUser }) {
                 ))}
               </Field.Select>
             </Box>
-            {/* <Stack spacing={1.5}>
-              <Typography variant="subtitle2">Content</Typography>
-              <Field.Editor name="description" sx={{ maxHeight: 480 }} />
-            </Stack> */}
 
             {currentUser && (
               <Stack spacing={3} sx={{ p: 3 }}>
@@ -258,17 +301,104 @@ export function UserNewEditForm({ currentUser }) {
                   <Field.Text name="createdBy" label="Created by" disabled />
                   <Field.Text name="updatedBy" label="Last Updated by" disabled />
                 </Stack>
+                <Field.Text name="updatedAt" label="Last Updated At" disabled />
               </Stack>
             )}
 
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentUser ? 'Create user' : 'Save changes'}
-              </LoadingButton>
-            </Stack>
+            {canEdit && (
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentUser ? 'Create user' : 'Save changes'}
+                </LoadingButton>
+              </Stack>
+            )}
           </Card>
         </Grid>
       </Grid>
+      <UpdatePassword
+        currentUser={currentUser}
+        open={passwordShow.value}
+        onClose={passwordShow.onFalse}
+      />
     </Form>
   );
 }
+const UpdatePassword = ({ currentUser, open, onClose }) => {
+  const router = useRouter();
+  const defaultValues = useMemo(
+    () => ({
+      password: '',
+    }),
+    [currentUser]
+  );
+
+  const methods = useForm({
+    mode: 'all',
+    resolver: zodResolver(
+      zod.object({
+        password: zod.string().min(6, { message: 'Password must be at least 6 characters long!' }),
+      })
+    ),
+    defaultValues,
+  });
+
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      const updatedBy = jwtDecode(sessionStorage.getItem('jwt_access_token')).id;
+      const formData = new FormData();
+      data = {
+        ...data,
+        user_id: currentUser._id,
+        updatedBy: updatedBy,
+      };
+
+      await axios
+        .post(endpoints.users.updatePassword, data)
+        .then((response) => {
+          reset();
+          toast.success(response.data.message);
+          refreshUser(currentUser._id);
+          router.push(paths.dashboard.users.root);
+        })
+        .catch((error) => {
+          toast.error(error.message);
+        });
+    } catch (error) {
+      console.error('Form submission error:', error);
+      toast.error(error.message || 'An error occurred during form submission');
+    }
+  });
+
+  return (
+    <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
+      <Form methods={methods} onSubmit={onSubmit}>
+        <DialogTitle>Update Password</DialogTitle>
+
+        <DialogContent dividers>
+          <Stack spacing={3} sx={{ p: 3 }}>
+            <Field.Text
+              name="password"
+              label="Password"
+              placeholder="6+ characters"
+              type="password"
+              InputLabelProps={{ shrink: true }}
+            />
+          </Stack>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+            Save Changes
+          </LoadingButton>
+        </DialogActions>
+      </Form>
+    </Dialog>
+  );
+};
