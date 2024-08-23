@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 
+import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -9,15 +10,16 @@ import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+
 import { ComponentBlock, ComponentContainer } from '../compoenet-block/component-block';
-import Link from '@mui/material/Link';
 
 // ----------------------------------------------------------------------
 
 export function CopyToClipboard({ LinkUrl, title }) {
+  console.log(LinkUrl, 'LinkUrl');
   const { copy } = useCopyToClipboard();
 
-  const [value, setValue] = useState(LinkUrl ? LinkUrl : 'https://www.npmjs.com/package/');
+  // const [value, setValue] = useState(LinkUrl);
 
   const textOnClick = `Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
   Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat
@@ -49,12 +51,12 @@ export function CopyToClipboard({ LinkUrl, title }) {
             whiteSpace: 'normal', // Ensures the text can wrap to the next line
           }}
         >
-          <Link href={value} target="_blank" rel="noopener noreferrer">
-            {value}
+          <Link href={LinkUrl} target="_blank" rel="noopener noreferrer">
+            {LinkUrl}
           </Link>
           <InputAdornment position="start" style={{ display: 'inline-flex' }}>
             <Tooltip title="Copy">
-              <IconButton onClick={() => onCopy(value)}>
+              <IconButton onClick={() => onCopy(LinkUrl)}>
                 <Iconify icon="eva:copy-fill" width={24} />
               </IconButton>
             </Tooltip>

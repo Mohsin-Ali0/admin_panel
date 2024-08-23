@@ -6,15 +6,13 @@ import Typography from '@mui/material/Typography';
 
 import { decodeGoogleSpecialCharacters } from 'src/utils/decode-google-characters';
 
-export const AutoSelectedVideos = ({ selectedVideos }) => {
-  return (
+export const AutoSelectedVideos = ({ selectedVideos }) => (
     <Box gap={2} display="grid" gridTemplateColumns="1fr">
       {selectedVideos?.map((row, index) => (
         <VideosList key={index} row={row} />
       ))}
     </Box>
   );
-};
 
 export const VideosList = ({ row }) => (
   <Card

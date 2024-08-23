@@ -117,4 +117,40 @@ export const schemaHelper = {
 
       return data;
     }),
+  /**
+   * files
+   * defaultValue === null
+   */
+  number: (props) =>
+    zod
+      .string()
+      .min(1, {
+        message: props?.message?.required_error ?? 'Value is required2!',
+      })
+      .refine((value) => /^[0-9]*\.?[0-9]+$/.test(value), {
+        message: props?.message?.invalid_type_error ?? 'Value is invalid!',
+      })
+      .refine(
+        (value) => {
+          const numberValue = parseFloat(value);
+          return numberValue > 0;
+        },
+        {
+          message: props?.message?.value_error ?? 'Value must be greater than 0!',
+        }
+      ),
+
+  currency: (props) =>
+    zod.object({
+      currency: zod.string().min(1, {
+        message: props?.message?.currency_error ?? 'Currency is required!',
+      }),
+      value: schemaHelper.number({
+        message: {
+          required_error: props?.message?.required_error ?? 'Value is required!',
+          invalid_type_error: props?.message?.invalid_type_error ?? 'Value is invalid!',
+          value_error: props?.message?.value_error ?? 'Value must be greater than 0!',
+        },
+      }),
+    }),
 };

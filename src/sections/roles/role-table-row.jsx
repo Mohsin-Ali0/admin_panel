@@ -20,7 +20,14 @@ import { usePopover, CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export function RoleTableRow({ row, selected, onEditRow, onSelectRow, onUpdateStatusRow }) {
+export function RoleTableRow({
+  row,
+  selected,
+  onEditRow,
+  onSelectRow,
+  onUpdateStatusRow,
+  canEdit,
+}) {
   const confirm = useBoolean();
   const popover = usePopover();
 
@@ -63,24 +70,26 @@ export function RoleTableRow({ row, selected, onEditRow, onSelectRow, onUpdateSt
         </TableCell>
 
         <TableCell>
-          <Stack direction="row" alignItems="center">
-            <Tooltip title="Edit Role" placement="top" arrow>
-              <IconButton
-                color={quickEdit.value ? 'inherit' : 'default'}
-                // onClick={quickEdit.onTrue}
-                onClick={() => {
-                  onEditRow();
-                  quickEdit.onTrue;
-                }}
-              >
-                <Iconify icon="solar:pen-bold" />
-              </IconButton>
-            </Tooltip>
+          {canEdit ? (
+            <Stack direction="row" alignItems="center">
+              <Tooltip title="Edit Role" placement="top" arrow>
+                <IconButton
+                  color={quickEdit.value ? 'inherit' : 'default'}
+                  // onClick={quickEdit.onTrue}
+                  onClick={() => {
+                    onEditRow();
+                    quickEdit.onTrue;
+                  }}
+                >
+                  <Iconify icon="solar:pen-bold" />
+                </IconButton>
+              </Tooltip>
 
-            <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-              <Iconify icon="eva:more-vertical-fill" />
-            </IconButton>
-          </Stack>
+              <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+                <Iconify icon="eva:more-vertical-fill" />
+              </IconButton>
+            </Stack>
+          ) : null}
         </TableCell>
       </TableRow>
 

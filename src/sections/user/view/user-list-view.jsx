@@ -65,7 +65,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export function UserListView() {
+export function UserListView({ canEdit }) {
   const table = useTable();
 
   const router = useRouter();
@@ -172,13 +172,14 @@ export function UserListView() {
   }
   return (
     <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Users"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Users', href: paths.dashboard.users.root },
-          ]}
-          action={
+      <CustomBreadcrumbs
+        heading="Users"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Users', href: paths.dashboard.users.root },
+        ]}
+        action={
+          canEdit && (
             <Button
               component={RouterLink}
               href={paths.dashboard.users.createUser}
@@ -187,122 +188,123 @@ export function UserListView() {
             >
               New User
             </Button>
-          }
-          sx={{ mb: { xs: 3, md: 5 } }}
-        />
+          )
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
 
-        <Card>
-          <Tabs
-            value={String(filters.state.status)}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) =>
-                `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={String(tab.value)}
-                iconPosition="end"
-                value={String(tab.value)}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' ||
-                        String(tab.value) === String(filters.state.status)) &&
-                        'filled') ||
-                      'soft'
-                    }
-                    color={
-                      (tab.value === true && 'success') ||
-                      (tab.value === false && 'error') ||
-                      'default'
-                    }
-                  >
-                    {tab.value === 'all'
-                      ? TotalCount.all
-                      : tab.value === true
-                        ? TotalCount.active
-                        : TotalCount.inactive}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <UserTableToolbar filters={filters} onResetPage={table.onResetPage} />
-
-          {canReset && (
-            <UserTableFiltersResult
-              filters={filters}
-              totalResults={dataFiltered.length}
-              onResetPage={table.onResetPage}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
+      <Card>
+        <Tabs
+          value={String(filters.state.status)}
+          onChange={handleFilterStatus}
+          sx={{
+            px: 2.5,
+            boxShadow: (theme) =>
+              `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+          }}
+        >
+          {STATUS_OPTIONS.map((tab) => (
+            <Tab
+              key={String(tab.value)}
+              iconPosition="end"
+              value={String(tab.value)}
+              label={tab.label}
+              icon={
+                <Label
+                  variant={
+                    ((tab.value === 'all' || String(tab.value) === String(filters.state.status)) &&
+                      'filled') ||
+                    'soft'
+                  }
+                  color={
+                    (tab.value === true && 'success') ||
+                    (tab.value === false && 'error') ||
+                    'default'
+                  }
+                >
+                  {tab.value === 'all'
+                    ? TotalCount.all
+                    : tab.value === true
+                      ? TotalCount.active
+                      : TotalCount.inactive}
+                </Label>
               }
             />
+          ))}
+        </Tabs>
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                />
+        <UserTableToolbar filters={filters} onResetPage={table.onResetPage} />
 
-                <TableBody>
-                  {dataFiltered.map((row) => (
-                    <UserTableRow
-                      key={row._id}
-                      row={row}
-                      selected={table.selected.includes(row._id)}
-                      onSelectRow={() => table.onSelectRow(row._id)}
-                      onUpdateStatusRow={() => handleUpdateStatus(row)}
-                      onEditRow={() => handleEditRow(row._id)}
-                    />
-                  ))}
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
-
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={getCountForCurrentStatus()}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+        {canReset && (
+          <UserTableFiltersResult
+            filters={filters}
+            totalResults={dataFiltered.length}
+            onResetPage={table.onResetPage}
+            sx={{ p: 2.5, pt: 0 }}
           />
-        </Card>
-      </DashboardContent>
+        )}
+
+        <Box sx={{ position: 'relative' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={dataFiltered.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                dataFiltered.map((row) => row.id)
+              )
+            }
+            action={
+              <Tooltip title="Delete">
+                <IconButton color="primary" onClick={confirm.onTrue}>
+                  <Iconify icon="solar:trash-bin-trash-bold" />
+                </IconButton>
+              </Tooltip>
+            }
+          />
+
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={TABLE_HEAD}
+                rowCount={dataFiltered.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+              />
+
+              <TableBody>
+                {dataFiltered.map((row) => (
+                  <UserTableRow
+                    key={row._id}
+                    row={row}
+                    selected={table.selected.includes(row._id)}
+                    onSelectRow={() => table.onSelectRow(row._id)}
+                    onUpdateStatusRow={() => handleUpdateStatus(row)}
+                    onEditRow={() => handleEditRow(row._id)}
+                    canEdit={canEdit}
+                  />
+                ))}
+
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </Box>
+
+        <TablePaginationCustom
+          page={table.page}
+          dense={table.dense}
+          count={getCountForCurrentStatus()}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onChangeDense={table.onChangeDense}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </DashboardContent>
   );
 }
 

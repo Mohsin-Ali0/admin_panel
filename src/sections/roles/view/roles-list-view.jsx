@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -45,6 +45,7 @@ import { jwtDecode } from 'src/auth/context/jwt';
 import { RoleTableRow } from '../role-table-row';
 import { RoleTableToolbar } from '../role-table-toolbar';
 import { RoleTableFiltersResult } from '../role-table-filters-result';
+import { AuthContext } from 'src/auth/context/auth-context';
 // ----------------------------------------------------------------------
 const ROLE_STATUS_OPTIONS = [
   { value: true, label: 'Active' },
@@ -52,14 +53,6 @@ const ROLE_STATUS_OPTIONS = [
 ];
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ROLE_STATUS_OPTIONS];
-
-const TABLE_HEAD = [
-  { id: 'role_name', label: 'Role Name' },
-  { id: 'createdBy', label: 'Created by' },
-  { id: 'role_status', label: 'Role Status' },
-  { id: 'updatedBy', label: 'Last Updated by' },
-  { id: '', label: 'Actions' },
-];
 
 const defaultFilters = {
   keyword: '',
@@ -70,7 +63,17 @@ const defaultFilters = {
 
 export function RoleListView() {
   const table = useTable();
+  const { user } = useContext(AuthContext);
+  let permissions = jwtDecode(user.accessToken)?.AllowedScreens;
+  let canEdit = permissions.roles.edit;
 
+  const TABLE_HEAD = [
+    { id: 'role_name', label: 'Role Name' },
+    { id: 'createdBy', label: 'Created by' },
+    { id: 'role_status', label: 'Role Status' },
+    { id: 'updatedBy', label: 'Last Updated by' },
+    { id: '', label: 'Actions' },
+  ];
   const router = useRouter();
 
   const confirm = useBoolean();
@@ -174,14 +177,16 @@ export function RoleListView() {
             { name: 'List' },
           ]}
           action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.roles.createRole}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Role
-            </Button>
+            canEdit && (
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.roles.createRole}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+              >
+                New Role
+              </Button>
+            )
           }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
@@ -283,6 +288,7 @@ export function RoleListView() {
                         onSelectRow={() => table.onSelectRow(row._id)}
                         onUpdateStatusRow={() => handleUpdateStatus(row)}
                         onEditRow={() => handleEditRow(row._id)}
+                        canEdit={canEdit}
                       />
                     ))}
 

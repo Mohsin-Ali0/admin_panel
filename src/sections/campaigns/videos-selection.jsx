@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Radio from '@mui/material/Radio';
@@ -18,7 +18,6 @@ import { AutoSelectedVideos } from './auto-select-videos';
 import { ManuallySelectVideos } from './manual-select-videos';
 
 export function VideoSelection({ channelId, campagineData, updateCampaignData }) {
-  console.log(campagineData, 'campagineData?.selectedType');
   const { videos, videosLoading, videosError, videosValidating } = useGetvideos(
     channelId,
     campagineData?.selectedType,
@@ -67,7 +66,6 @@ export function VideoSelection({ channelId, campagineData, updateCampaignData })
   );
 
   const renderChildComponent = useMemo(() => {
-    console.log(campagineData?.selectedType, 'MEMOOOOOO');
     switch (campagineData?.selectedType) {
       case 1:
         return <AutoSelectedVideos selectedVideos={campagineData.selectedVideos} />;

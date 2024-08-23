@@ -70,5 +70,11 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/custom-campaigns`,
       createCampaign: `${ROOTS.DASHBOARD}/custom-campaigns/create-campaign`,
     },
+    configuration: {
+      root: `${ROOTS.DASHBOARD}/system-managment`,
+      privacyPolicy: `${ROOTS.DASHBOARD}/system-managment/privacy-and-policy-managment`,
+      termsandServices: `${ROOTS.DASHBOARD}/system-managment/terms-and-condition-managment`,
+      systemConfiguration: `${ROOTS.DASHBOARD}/system-managment/system-configuration`,
+    },
   },
 };

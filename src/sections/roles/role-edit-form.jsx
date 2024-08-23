@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useContext } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -22,6 +22,7 @@ import { Form, Field } from 'src/components/hook-form';
 import { jwtDecode } from 'src/auth/context/jwt';
 
 import axios, { endpoints } from '../../utils/axios';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 // Define the schema with the screens array
 const RoleSchema = zod.object({
@@ -46,11 +47,16 @@ const initialScreens = [
   { name: 'Custom Campaigns', view: false, edit: false },
   { name: 'Roles', view: false, edit: false },
   { name: 'Users', view: false, edit: false },
+  { name: 'System Configuration', view: false, edit: false },
 ];
 
 export function RoleEditForm({ currentRole }) {
   const router = useRouter();
   const [screens, setScreens] = useState(initialScreens);
+
+  const { user } = useContext(AuthContext);
+  let permissions = jwtDecode(user.accessToken)?.AllowedScreens;
+  let canEdit = permissions.roles.edit;
 
   const handleCheckboxChange = (index, type) => {
     setScreens((prevScreens) =>
@@ -91,9 +97,9 @@ export function RoleEditForm({ currentRole }) {
     () => ({
       role_name: currentRole?.role_name || '',
       screens: currentRole?.permissions || initialScreens,
-      createdBy: `${currentRole?.createdBy?.first_name  } ${  currentRole?.createdBy?.last_name}` || '',
+      createdBy: `${currentRole?.createdBy?.first_name} ${currentRole?.createdBy?.last_name}` || '',
       updatedBy:
-        `${currentRole?.updatedBy?.first_name  } ${  currentRole?.updatedBy?.last_name}` || 'None',
+        `${currentRole?.updatedBy?.first_name} ${currentRole?.updatedBy?.last_name}` || 'None',
       role_status: currentRole?.role_status || false, // Ensure default value is set
     }),
     [currentRole]
@@ -122,7 +128,7 @@ export function RoleEditForm({ currentRole }) {
 
   useEffect(() => {
     if (currentRole && currentRole.permissions) {
-      const {permissions} = currentRole;
+      const { permissions } = currentRole;
       const transformedScreens = Object.keys(permissions).map((key) => ({
         name: key.charAt(0).toUpperCase() + key.slice(1),
         view: permissions[key].view,
@@ -282,11 +288,13 @@ export function RoleEditForm({ currentRole }) {
                 <Field.Text name="updatedBy" label="Last Updated by" disabled />
               </Stack>
             </Stack>
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentRole ? 'Create Role' : 'Save changes'}
-              </LoadingButton>
-            </Stack>
+            {canEdit && (
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentRole ? 'Create Role' : 'Save changes'}
+                </LoadingButton>
+              </Stack>
+            )}
           </Card>
         </Grid>
       </Grid>

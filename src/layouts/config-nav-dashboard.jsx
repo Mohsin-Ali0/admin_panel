@@ -41,32 +41,11 @@ const ICONS = {
 
 export const navData = [
   /**
-   * Overview
-   */
-  {
-    subheader: 'Overview 6.0.0',
-    items: [
-      { title: 'One', path: paths.dashboard.root, icon: ICONS.dashboard },
-      { title: 'Two', path: paths.dashboard.two, icon: ICONS.ecommerce },
-      { title: 'Three', path: paths.dashboard.three, icon: ICONS.analytics },
-    ],
-  },
-  /**
    * Management
    */
   {
     subheader: 'Management',
     items: [
-      {
-        title: 'Group',
-        path: paths.dashboard.group.root,
-        icon: ICONS.user,
-        children: [
-          { title: 'Four', path: paths.dashboard.group.root },
-          { title: 'Five', path: paths.dashboard.group.five },
-          { title: 'Six', path: paths.dashboard.group.six },
-        ],
-      },
       {
         title: 'Roles Managment',
         path: paths.dashboard.roles.root,
@@ -100,6 +79,22 @@ export const navData = [
         icon: ICONS.user,
         children: [
           { title: 'Create Campaigns', path: paths.dashboard.customCampaigns.createCampaign },
+        ],
+      },
+      {
+        title: 'System-Managment',
+        path: paths.dashboard.configuration.root,
+        icon: ICONS.lock,
+        children: [
+          { title: 'Pricvacy Policy Managment', path: paths.dashboard.configuration.privacyPolicy },
+          {
+            title: 'Terms and Services Managment',
+            path: paths.dashboard.configuration.termsandServices,
+          },
+          {
+            title: 'System Configuration Managment',
+            path: paths.dashboard.configuration.systemConfiguration,
+          },
         ],
       },
     ],

@@ -35,9 +35,7 @@ export function useGetcustomers() {
 // ----------------------------------------------------------------------
 
 export function useGetcustomer(customerId) {
-  //   const url = customerId ? [endpoints.customers.getbyId, { params: { customerId } }] : '';
-  console.log(customerId, 'customerId');
-  const url = customerId ? [`${endpoints.customer.getbyId  }/${customerId}`] : '';
+  const url = customerId ? [`${endpoints.customer.getbyId}/${customerId}`] : '';
 
   const { data, isLoading, error, isValidating } = useSWR(url, fetcher, swrOptions);
   const memoizedValue = useMemo(

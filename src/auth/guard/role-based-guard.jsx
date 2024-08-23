@@ -6,31 +6,48 @@ import Typography from '@mui/material/Typography';
 import { ForbiddenIllustration } from 'src/assets/illustrations';
 
 import { varBounce, MotionContainer } from 'src/components/animate';
+import { useContext } from 'react';
+import { AuthContext } from '../context/auth-context';
+import { LoadingScreen } from 'src/components/loading-screen';
+import { Navigate } from 'react-router';
+import { jwtDecode } from '../context/jwt';
 
 // ----------------------------------------------------------------------
 
-export function RoleBasedGuard({ sx, children, hasContent, currentRole, acceptRoles }) {
-  if (typeof acceptRoles !== 'undefined' && !acceptRoles.includes(currentRole)) {
-    return hasContent ? (
-      <Container component={MotionContainer} sx={{ textAlign: 'center', ...sx }}>
-        <m.div variants={varBounce().in}>
-          <Typography variant="h3" sx={{ mb: 2 }}>
-            Permission denied
-          </Typography>
-        </m.div>
+export const RoleBasedGuard = ({ resource, action, element }) => {
+  const { user, loading } = useContext(AuthContext);
 
-        <m.div variants={varBounce().in}>
-          <Typography sx={{ color: 'text.secondary' }}>
-            You do not have permission to access this page.
-          </Typography>
-        </m.div>
+  if (loading) {
+    return <LoadingScreen />; // Show loading screen while checking permissions
+  }
+  let rolesData = jwtDecode(user.accessToken).AllowedScreens;
+  const hasPermission = rolesData?.[resource]?.[action];
 
-        <m.div variants={varBounce().in}>
-          <ForbiddenIllustration sx={{ my: { xs: 5, sm: 10 } }} />
-        </m.div>
-      </Container>
-    ) : null;
+  if (!hasPermission) {
+    return <AccessDenied />; // Redirect to 404 or a custom unauthorized page
   }
 
-  return <> {children} </>;
-}
+  return element;
+};
+
+export const AccessDenied = () => {
+  return (
+    <Container component={MotionContainer} sx={{ textAlign: 'center', alignSelf: 'center' }}>
+      <m.div variants={varBounce().in}>
+        <Typography variant="h3" sx={{ mb: 2 }}>
+          Permission denied
+        </Typography>
+      </m.div>
+
+      <m.div variants={varBounce().in}>
+        <Typography sx={{ color: 'text.secondary' }}>
+          You do not have permission to access this page.
+        </Typography>
+      </m.div>
+
+      <m.div variants={varBounce().in}>
+        <ForbiddenIllustration sx={{ my: { xs: 5, sm: 10 } }} />
+      </m.div>
+    </Container>
+  );
+};
