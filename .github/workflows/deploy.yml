@@ -25,10 +25,6 @@ jobs:
           npm install
           npm run build
 
-      - name: 🔄 Clean up destination directory
-        run: |
-          lftp -c "open -u ${{ secrets.GIT_CPANEL_REACT_USER }},${{ secrets.GIT_CPANEL_REACT_PWD }} ${{ secrets.GIT_CPANEL_REACT_SERVER }}; rm -r /admin.vidtrail.com/*"
-
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -37,4 +33,4 @@ jobs:
           password: ${{ secrets.GIT_CPANEL_REACT_PWD }} # Ensure this matches the client's config
           protocol: ${{ secrets.GIT_CPANEL_REACT_PROTOCOL }} # Typically 'ftps' or 'ftp'
           local-dir: ./dist/ # Assuming your build files are in the 'dist/' directory
-          server-dir: /admin.vidtrail.com/ # The directory for your subdomain on the server
+          server-dir: / # The directory for your subdomain on the server
