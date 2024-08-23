@@ -1,8 +1,9 @@
+name: 🚀 Deploy Admin Panel to admin.vidtrail.com on Push
+
 on:
   push:
     branches:
-      - main
-name: 🚀 Deploy React App to admin.vidtrail.com on Push
+      - main # Triggers the workflow on push to the main branch
 
 jobs:
   web-deploy:
@@ -27,9 +28,9 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.GIT_CPANEL_REACT_SERVER }}
-          username: ${{ secrets.GIT_CPANEL_REACT_USER }}
-          password: ${{ secrets.GIT_CPANEL_REACT_PWD }}
-          protocol: ${{ secrets.GIT_CPANEL_REACT_PROTOCOL }}
-          local-dir: ./dist/ # Change this to ./dist/ to match your actual build directory
-          server-dir: /admin.vidtrail.com/
+          server: ${{ secrets.GIT_CPANEL_REACT_SERVER }} # Same server as the client-side app
+          username: ${{ secrets.GIT_CPANEL_REACT_USER }} # Ensure this matches the client's config
+          password: ${{ secrets.GIT_CPANEL_REACT_PWD }} # Ensure this matches the client's config
+          protocol: ${{ secrets.GIT_CPANEL_REACT_PROTOCOL }} # Typically 'ftps' or 'ftp'
+          local-dir: ./dist/ # Assuming your build files are in the 'dist/' directory
+          server-dir: /admin.vidtrail.com/ # The directory for your subdomain on the server
