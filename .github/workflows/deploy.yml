@@ -33,4 +33,3 @@ jobs:
           password: ${{ secrets.GIT_CPANEL_REACT_PWD }} # Ensure this matches the client's config
           protocol: ${{ secrets.GIT_CPANEL_REACT_PROTOCOL }} # Typically 'ftps' or 'ftp'
           local-dir: ./dist/ # Assuming your build files are in the 'dist/' directory
-          server-dir: /admin.vidtrail.com/ # The directory for your subdomain on the server
