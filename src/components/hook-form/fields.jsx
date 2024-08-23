@@ -25,7 +25,7 @@ export const Field = {
   Slider: RHFSlider,
   Rating: RHFRating,
   Text: RHFTextField,
-  Number:RHFNumberField,
+  Number: RHFNumberField,
   Phone: RHFPhoneInput,
   Checkbox: RHFCheckbox,
   UploadBox: RHFUploadBox,

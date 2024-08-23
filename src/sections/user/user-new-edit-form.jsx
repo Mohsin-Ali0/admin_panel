@@ -10,16 +10,15 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
+  Button,
+  Dialog,
   Divider,
   MenuItem,
   IconButton,
-  InputAdornment,
-  Button,
   DialogTitle,
-  Dialog,
   DialogContent,
-  Alert,
   DialogActions,
+  InputAdornment,
 } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
@@ -28,6 +27,7 @@ import { useRouter } from 'src/routes/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fData } from 'src/utils/format-number';
+import { fDateTime } from 'src/utils/format-time';
 import axios, { endpoints } from 'src/utils/axios';
 
 import { refreshUser } from 'src/actions/user';
@@ -38,7 +38,6 @@ import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 import { jwtDecode } from 'src/auth/context/jwt';
-import { fDateTime } from 'src/utils/format-time';
 
 // ----------------------------------------------------------------------
 export const NewUserSchema = zod.object({
@@ -158,9 +157,9 @@ export function UserNewEditForm({ currentUser, canEdit }) {
         .then((response) => {
           reset();
           toast.success(response.data.message);
-          {
-            currentUser ? refreshUser(currentUser._id) : null;
-          }
+
+          currentUser ? refreshUser(currentUser._id) : null;
+
           router.push(paths.dashboard.users.root);
         })
         .catch((error) => {
@@ -355,7 +354,7 @@ const UpdatePassword = ({ currentUser, open, onClose }) => {
       data = {
         ...data,
         user_id: currentUser._id,
-        updatedBy: updatedBy,
+        updatedBy,
       };
 
       await axios

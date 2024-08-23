@@ -1,20 +1,24 @@
+import { useContext } from 'react';
+import { Helmet } from 'react-helmet-async';
+
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 
-import { Helmet } from 'react-helmet-async';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { Iconify } from 'src/components/iconify';
+import { paths } from 'src/routes/paths';
+
+import { useTabs } from 'src/hooks/use-tabs';
 
 import { CONFIG } from 'src/config-global';
-import { useTabs } from 'src/hooks/use-tabs';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { paths } from 'src/routes/paths';
+
+import { Iconify } from 'src/components/iconify';
+import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { FrontViewsandPricing } from 'src/sections/system-configuration/front-views-managment';
 import { PanelConfigManagment } from 'src/sections/system-configuration/panel-configuration-managment';
-import { useContext } from 'react';
-import { AuthContext } from 'src/auth/context/auth-context';
+
 import { jwtDecode } from 'src/auth/context/jwt';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +40,7 @@ const TABS = [
 export default function Page() {
   const tabs = useTabs('frontmanagment');
   const { user } = useContext(AuthContext);
-  let permissions = jwtDecode(user?.accessToken)?.AllowedScreens;
+  const permissions = jwtDecode(user?.accessToken)?.AllowedScreens;
   const canEdit = permissions.systemconfiguration.edit;
   return (
     <>

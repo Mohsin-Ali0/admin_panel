@@ -1,3 +1,4 @@
+import { mutate } from 'swr';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useMemo, useEffect } from 'react';
@@ -10,14 +11,15 @@ import CardHeader from '@mui/material/CardHeader';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, InputAdornment } from '@mui/material';
 
-import { useRouter } from 'src/routes/hooks';
 import { fDateTime } from 'src/utils/format-time';
+import axios, { endpoints } from 'src/utils/axios';
+
+import { useGetContent } from 'src/actions/configuration';
+
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-import axios, { endpoints } from 'src/utils/axios';
+
 import { jwtDecode } from 'src/auth/context/jwt';
-import { mutate } from 'swr';
-import { useGetContent } from 'src/actions/configuration';
 
 export const NewFrontManagmentSchema = zod
   .object({

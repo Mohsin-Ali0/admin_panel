@@ -8,15 +8,16 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
-import { Box, Chip, useTheme, useMediaQuery, Icon } from '@mui/material';
+import { Box, Chip, useTheme, useMediaQuery } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 import { decodeGoogleSpecialCharacters } from 'src/utils/decode-google-characters';
 
-import { FlagIcon, Iconify } from 'src/components/iconify';
+import { useGetCustomCampaignDetails } from 'src/actions/configuration';
+
+import { Iconify, FlagIcon } from 'src/components/iconify';
 import { getCountry } from 'src/components/country-select';
 import { ComponentBlock, ComponentContainer } from 'src/components/compoenet-block/component-block';
-import { useGetCustomCampaignDetails } from 'src/actions/configuration';
 
 export const ReviewSubmit = ({
   sx,
@@ -97,7 +98,7 @@ const BudgetReview = ({ data }) => (
 );
 
 const EstimatedDetails = ({ data, BidDetails }) => {
-  let campaign_amount_aftertax =
+  const campaign_amount_aftertax =
     parseFloat(data.amount) - parseFloat(data.percentage.custom_percentage_amount);
 
   return (

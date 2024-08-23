@@ -34,36 +34,36 @@ export function UserTableToolbar({ filters, onResetPage }) {
 
   return (
     <Stack
-        spacing={2}
-        alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{ xs: 'column', md: 'row' }}
-        sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
-      >
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Status</InputLabel>
-          <Select value={filters.state.status} onChange={handleFilterStatus} label="Status">
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value>Active</MenuItem>
-            <MenuItem value={false}>InActive</MenuItem>
-          </Select>
-        </FormControl>
+      spacing={2}
+      alignItems={{ xs: 'flex-end', md: 'center' }}
+      direction={{ xs: 'column', md: 'row' }}
+      sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
+    >
+      <FormControl sx={{ minWidth: 200 }}>
+        <InputLabel>Status</InputLabel>
+        <Select value={filters.state.status} onChange={handleFilterStatus} label="Status">
+          <MenuItem value="all">All</MenuItem>
+          <MenuItem value>Active</MenuItem>
+          <MenuItem value={false}>InActive</MenuItem>
+        </Select>
+      </FormControl>
 
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            label="Username"
-            fullWidth
-            value={filters.state.keyword}
-            onChange={handleFilterName}
-            placeholder="Search..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Stack>
+      <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+        <TextField
+          label="Username"
+          fullWidth
+          value={filters.state.keyword}
+          onChange={handleFilterName}
+          placeholder="Search..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Stack>
+    </Stack>
   );
 }

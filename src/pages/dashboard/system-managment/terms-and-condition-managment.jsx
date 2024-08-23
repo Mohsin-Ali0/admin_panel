@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { paths } from 'src/routes/paths';
@@ -9,9 +10,9 @@ import { useGetContent } from 'src/actions/configuration';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { ContentEditForm } from 'src/sections/system-configuration/content-editor-form';
-import { useContext } from 'react';
-import { AuthContext } from 'src/auth/context/auth-context';
+
 import { jwtDecode } from 'src/auth/context/jwt';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -22,8 +23,8 @@ export default function Page() {
     useGetContent('termsAndConditions');
 
   const { user } = useContext(AuthContext);
-  let permissions = jwtDecode(user?.accessToken)?.AllowedScreens;
-  let canEdit = permissions.systemconfiguration.edit;
+  const permissions = jwtDecode(user?.accessToken)?.AllowedScreens;
+  const canEdit = permissions.systemconfiguration.edit;
   return (
     <>
       <Helmet>

@@ -145,9 +145,7 @@ export function CustomerTableRow({ row, selected, onViewRow, onSelectRow, onDele
                       {item?.parsedCampaignDetails?.ChannelDetails?.title}
                     </Link>
                   }
-                  secondary={
-                    `${item?.parsedCampaignDetails?.ChannelDetails?.subscribersCount  } Subscribers`
-                  }
+                  secondary={`${item?.parsedCampaignDetails?.ChannelDetails?.subscribersCount} Subscribers`}
                   primaryTypographyProps={{ typography: 'body2' }}
                   secondaryTypographyProps={{
                     component: 'span',

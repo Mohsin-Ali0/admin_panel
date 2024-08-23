@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
@@ -8,9 +9,9 @@ import { useGetUser } from 'src/actions/user';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 
 import { UserEditView } from 'src/sections/user/view';
-import { useContext } from 'react';
-import { AuthContext } from 'src/auth/context/auth-context';
+
 import { jwtDecode } from 'src/auth/context/jwt';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -21,8 +22,8 @@ export default function Page() {
 
   const { user, userLoading, userError, userValidating } = useGetUser(id);
   const userDetails = useContext(AuthContext);
-  let permissions = jwtDecode(userDetails?.user?.accessToken)?.AllowedScreens;
-  let canEdit = permissions.users.edit;
+  const permissions = jwtDecode(userDetails?.user?.accessToken)?.AllowedScreens;
+  const canEdit = permissions.users.edit;
   return (
     <>
       <Helmet>

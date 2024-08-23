@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -41,11 +41,11 @@ import {
 } from 'src/components/table';
 
 import { jwtDecode } from 'src/auth/context/jwt';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 import { RoleTableRow } from '../role-table-row';
 import { RoleTableToolbar } from '../role-table-toolbar';
 import { RoleTableFiltersResult } from '../role-table-filters-result';
-import { AuthContext } from 'src/auth/context/auth-context';
 // ----------------------------------------------------------------------
 const ROLE_STATUS_OPTIONS = [
   { value: true, label: 'Active' },
@@ -64,8 +64,8 @@ const defaultFilters = {
 export function RoleListView() {
   const table = useTable();
   const { user } = useContext(AuthContext);
-  let permissions = jwtDecode(user.accessToken)?.AllowedScreens;
-  let canEdit = permissions.roles.edit;
+  const permissions = jwtDecode(user.accessToken)?.AllowedScreens;
+  const canEdit = permissions.roles.edit;
 
   const TABLE_HEAD = [
     { id: 'role_name', label: 'Role Name' },

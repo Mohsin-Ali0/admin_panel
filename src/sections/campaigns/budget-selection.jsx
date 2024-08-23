@@ -14,8 +14,9 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Form, Field } from 'src/components/hook-form';
 import { useGetRevenue } from 'src/actions/configuration';
+
+import { Form, Field } from 'src/components/hook-form';
 
 const NewBudgetSchema = zod.object({
   amount: zod.number().nonnegative().min(4),
@@ -69,11 +70,11 @@ export function BudgetSelection({ campaignData, updateCampaignData }) {
         amount: parseInt(formValues?.amount),
         currency: formValues?.currency,
         percentage: {
-          custom_tax_percentage: !!campaignData?.percentage?.custom_percentage_enabled
+          custom_tax_percentage: campaignData?.percentage?.custom_percentage_enabled
             ? parseInt(formValues.taxes)
             : parseInt(revenue),
           custom_percentage_enabled: !!campaignData?.percentage?.custom_percentage_enabled,
-          custom_percentage_amount: !!campaignData?.percentage?.custom_percentage_enabled
+          custom_percentage_amount: campaignData?.percentage?.custom_percentage_enabled
             ? (parseInt(formValues.taxes) * parseInt(formValues.amount)) / 100
             : (parseInt(revenue) * parseInt(formValues.amount)) / 100,
         },

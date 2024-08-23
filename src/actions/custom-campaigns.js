@@ -44,10 +44,9 @@ export const useManualVideos = () => {
       const response = await axios.post(url, body);
       if (response.data.status === 200) {
         return response.data.data.videos; // Assuming VidefetchVideos data is in response.data.data
-      } 
-        setError(response.data.messege || 'Error fetching Videos');
-        return [];
-      
+      }
+      setError(response.data.messege || 'Error fetching Videos');
+      return [];
     } catch (err) {
       setError(err.message || 'Error fetching Videos');
       return [];
@@ -70,10 +69,9 @@ export const useChannels = () => {
       const response = await axios.post(url, { url: body });
       if (response.data.status === 200) {
         return response.data.data; // Assuming channels data is in response.data.data
-      } 
-        setError(response.data.messege || 'Error fetching channels');
-        return [];
-      
+      }
+      setError(response.data.messege || 'Error fetching channels');
+      return [];
     } catch (err) {
       setError(err.message || 'Error fetching channels');
       return [];

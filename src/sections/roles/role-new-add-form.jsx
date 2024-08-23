@@ -1,7 +1,7 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect, useContext } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, useEffect, useContext } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -19,9 +19,9 @@ import { toast } from 'src/components/snackbar';
 import { Form, Field } from 'src/components/hook-form';
 
 import { jwtDecode } from 'src/auth/context/jwt';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 import axios, { endpoints } from '../../utils/axios';
-import { AuthContext } from 'src/auth/context/auth-context';
 
 // Define the schema with the screens array
 const RoleSchema = zod.object({
@@ -52,8 +52,8 @@ export function RoleNewEditForm({ currentRole }) {
   const router = useRouter();
   const [screens, setScreens] = useState(currentRole?.screens || initialScreens);
   const { user } = useContext(AuthContext);
-  let permissions = jwtDecode(user.accessToken)?.AllowedScreens;
-  let canEdit = permissions.roles.edit;
+  const permissions = jwtDecode(user.accessToken)?.AllowedScreens;
+  const canEdit = permissions.roles.edit;
 
   const handleCheckboxChange = (index, type) => {
     setScreens((prevScreens) =>

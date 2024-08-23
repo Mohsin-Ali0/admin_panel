@@ -1,14 +1,14 @@
-import { lazy, Suspense, useContext } from 'react';
 import { Outlet } from 'react-router-dom';
+import { lazy, Suspense, useContext } from 'react';
 
 import { CONFIG } from 'src/config-global';
 import { DashboardLayout } from 'src/layouts/dashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
-import { AccessDenied, AuthGuard } from 'src/auth/guard';
-import { AuthContext } from 'src/auth/context/auth-context';
 import { jwtDecode } from 'src/auth/context/jwt';
+import { AuthGuard, AccessDenied } from 'src/auth/guard';
+import { AuthContext } from 'src/auth/context/auth-context';
 
 // ----------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ export const ProtectedRoute = ({ children, permission }) => {
   if (loading) {
     return <LoadingScreen />; // Show loading screen while checking permissions
   }
-  let permissions = jwtDecode(user.accessToken).AllowedScreens;
+  const permissions = jwtDecode(user.accessToken).AllowedScreens;
 
   if (!permissions) {
     return <LoadingScreen />;

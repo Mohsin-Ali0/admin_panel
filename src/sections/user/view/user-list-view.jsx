@@ -147,7 +147,7 @@ export function UserListView({ canEdit }) {
     try {
       const response = await axios.get(endpoints.users.list, {
         params: {
-          page: type == 'update' ? table.page : table.page + 1,
+          page: type === 'update' ? table.page : table.page + 1,
           limit: table.rowsPerPage,
           keyword: filters.state.keyword,
           status: filters.state.status,
