@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: false
+      VITE_SERVER_URL: 'https://backend.vidtrial.com' # Define your environment variable here
+
     steps:
       - name: 🚚 Get latest code
         uses: actions/checkout@v3
