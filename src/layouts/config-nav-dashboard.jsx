@@ -40,6 +40,16 @@ const ICONS = {
 // ----------------------------------------------------------------------
 
 export const navData = [
+  {
+    subheader: 'Dashboard',
+    items: [
+      {
+        title: 'Dashboard Analytics',
+        path: paths.dashboard.root,
+        icon: ICONS.dashboard,
+      },
+    ],
+  },
   /**
    * Management
    */

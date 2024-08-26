@@ -9,14 +9,10 @@ import { RouterLink } from 'src/routes/components';
 import { Logo } from 'src/components/logo';
 
 import { HeaderSection } from './header-section';
-import { Searchbar } from '../components/searchbar';
 import { MenuButton } from '../components/menu-button';
 import { SignInButton } from '../components/sign-in-button';
 import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
-import { LanguagePopover } from '../components/language-popover';
-import { ContactsPopover } from '../components/contacts-popover';
-import { WorkspacesPopover } from '../components/workspaces-popover';
 import { NotificationsDrawer } from '../components/notifications-drawer';
 
 // ----------------------------------------------------------------------
@@ -62,11 +58,7 @@ export function HeaderBase({
     helpLink = true,
     settings = true,
     purchase = true,
-    contacts = true,
-    searchbar = true,
-    workspaces = true,
     menuButton = true,
-    localization = true,
     notifications = true,
   } = {},
 
@@ -105,7 +97,7 @@ export function HeaderBase({
             <StyledDivider data-slot="divider" />
 
             {/* -- Workspace popover -- */}
-            {workspaces && <WorkspacesPopover data-slot="workspaces" data={data?.workspaces} />}
+            {/* {workspaces && <WorkspacesPopover data-slot="workspaces" data={data?.workspaces} />} */}
 
             {slots?.leftAreaEnd}
           </>
@@ -135,19 +127,10 @@ export function HeaderBase({
                 </Link>
               )}
 
-              {/* -- Searchbar -- */}
-              {searchbar && <Searchbar data-slot="searchbar" data={data?.nav} />}
-
-              {/* -- Language popover -- */}
-              {localization && <LanguagePopover data-slot="localization" data={data?.langs} />}
-
               {/* -- Notifications popover -- */}
               {notifications && (
                 <NotificationsDrawer data-slot="notifications" data={data?.notifications} />
               )}
-
-              {/* -- Contacts popover -- */}
-              {contacts && <ContactsPopover data-slot="contacts" data={data?.contacts} />}
 
               {/* -- Settings button -- */}
               {settings && <SettingsButton data-slot="settings" />}

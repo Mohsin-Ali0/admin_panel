@@ -12,7 +12,7 @@ import { AuthContext } from 'src/auth/context/auth-context';
 
 // ----------------------------------------------------------------------
 
-const IndexPage = lazy(() => import('src/pages/dashboard/one'));
+const IndexPage = lazy(() => import('src/pages/dashboard/analytics'));
 const PageTwo = lazy(() => import('src/pages/dashboard/two'));
 const PageThree = lazy(() => import('src/pages/dashboard/three'));
 const PageFour = lazy(() => import('src/pages/dashboard/four'));
@@ -82,6 +82,7 @@ export const dashboardRoutes = [
     path: 'dashboard',
     element: CONFIG.auth.skip ? <>{layoutContent}</> : <AuthGuard>{layoutContent}</AuthGuard>,
     children: [
+      { element: <IndexPage />, index: true },
       {
         path: 'roles',
         children: [

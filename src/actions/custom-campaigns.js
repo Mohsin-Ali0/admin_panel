@@ -39,7 +39,6 @@ export const useManualVideos = () => {
   const fetchVideos = useCallback(async (url, body) => {
     setLoading(true);
     setError(null);
-    console.log(url, body, 'url, body');
     try {
       const response = await axios.post(url, body);
       if (response.data.status === 200) {
@@ -64,7 +63,6 @@ export const useChannels = () => {
   const fetchChannels = useCallback(async (url, body) => {
     setLoading(true);
     setError(null);
-    console.log(url, body, 'url, body');
     try {
       const response = await axios.post(url, { url: body });
       if (response.data.status === 200) {
@@ -83,37 +81,7 @@ export const useChannels = () => {
   return { fetchChannels, loading, error };
 };
 
-// export const useGetVideos = () => {
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-
-//   const fetchVideos = useCallback(async (url, body) => {
-//     setLoading(true);
-//     setError(null);
-//     console.log(url, body, 'url, body');
-//     try {
-//       const response = await axios.post(url, { url: body });
-//       if (response.data.status === 200) {
-//         return response.data.data; // Assuming videos data is in response.data.data
-//       } else {
-//         setError(response.data.messege || 'Error fetching videos');
-//         return [];
-//       }
-//     } catch (err) {
-//       setError(err.message || 'Error fetching videos');
-//       return [];
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, []);
-
-//   return { fetchVideos, loading, error };
-// };
-
-// ----------------------------------------------------------------------
-
 export function useGetvideos(channelId, SelectedType, SearchBody) {
-  console.log(SearchBody, 'SearchBody');
   const url = channelId
     ? [endpoints.customCampaigns.getvideos, { channelId, type: SelectedType, SearchBody }]
     : '';

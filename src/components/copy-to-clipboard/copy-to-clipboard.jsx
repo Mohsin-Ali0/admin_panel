@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
@@ -16,7 +16,6 @@ import { ComponentBlock, ComponentContainer } from '../compoenet-block/component
 // ----------------------------------------------------------------------
 
 export function CopyToClipboard({ LinkUrl, title }) {
-  console.log(LinkUrl, 'LinkUrl');
   const { copy } = useCopyToClipboard();
 
   // const [value, setValue] = useState(LinkUrl);
