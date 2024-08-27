@@ -6,6 +6,16 @@ import { CONFIG } from 'src/config-global';
 
 const axiosInstance = axios.create({ baseURL: CONFIG.site.serverUrl });
 
+// Add request interceptor to include cache-control headers
+axiosInstance.interceptors.request.use(
+  (config) => {
+    config.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, proxy-revalidate';
+    config.headers['Pragma'] = 'no-cache';
+    config.headers['Expires'] = '0';
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong!')
